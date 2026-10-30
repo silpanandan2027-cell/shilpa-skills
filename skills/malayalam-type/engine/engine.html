@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ml"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"ML Display";src:url(../fonts/AnekMalayalam-VF.ttf);font-weight:100 800}
+@font-face{font-family:"ML Sans";src:url(../fonts/NotoSansMalayalam-VF.ttf);font-weight:100 900}
+@font-face{font-family:"ML Serif";src:url(../fonts/NotoSerifMalayalam-VF.ttf);font-weight:100 900}
+@font-face{font-family:"ML Round";src:url(../fonts/BalooChettan2-VF.ttf);font-weight:400 800}
+@font-face{font-family:"ML Soft";src:url(../fonts/Manjari-Regular.ttf);font-weight:400}
+@font-face{font-family:"ML Soft";src:url(../fonts/Manjari-Bold.ttf);font-weight:700}
+@font-face{font-family:"ML Hand";src:url(../fonts/Chilanka-Regular.ttf)}
+@font-face{font-family:"EN";src:url(../fonts/Inter-VF.ttf);font-weight:100 900}
+:root{--bg:#FBF6EE;--ink:#1B1B1F;--mute:#6B6B76;--accent:#C2410C;--card:#FFFFFF;--on-accent:#fff;--u:1px}
+html,body{margin:0;padding:0;background:var(--bg);overflow:hidden}
+body.clear,html:has(body.clear){background:transparent}
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden;color:var(--ink);font-family:"EN","ML Sans",sans-serif;-webkit-font-smoothing:antialiased}
+.scene{position:absolute;inset:0;display:none}
+.ml{white-space:pre;line-height:1.42;letter-spacing:0;font-kerning:normal}
+.g{display:inline-block;will-change:transform,opacity,filter}
+.f-display{font-family:"ML Display","EN",sans-serif;font-weight:800}
+.f-sans{font-family:"ML Sans","EN",sans-serif;font-weight:600}
+.f-serif{font-family:"ML Serif","EN",serif;font-weight:600}
+.f-round{font-family:"ML Round","EN",sans-serif;font-weight:700}
+.f-soft{font-family:"ML Soft","EN",sans-serif;font-weight:700}
+.f-hand{font-family:"ML Hand","EN",sans-serif;font-weight:400}
+.en{font-family:"EN",sans-serif;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.kick{font-family:"EN",sans-serif;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.hl{color:var(--accent)}
+.abs{position:absolute}
+.ctr{left:0;right:0;text-align:center}
+.card{background:var(--card);box-shadow:0 calc(18*var(--u)) calc(50*var(--u)) rgba(0,0,0,.18)}
+.pill{display:inline-block;text-align:center;background:var(--accent);color:var(--on-accent);border-radius:999px;white-space:pre}
+.dim{opacity:.55}
+</style></head>
+<body><div id="stage"></div>
+<script src="engine.js"></script>
+</body></html>

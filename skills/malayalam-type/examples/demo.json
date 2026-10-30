@@ -1,0 +1,13 @@
+{
+  "size": "1080x1920",
+  "theme": "paper",
+  "scenes": [
+    {"kind": "title", "at": 0.0, "dur": 2.6, "kicker": "മലയാളം ടൈപ്പ്", "lines": [{"ml": "ഇനി എല്ലാം", "en": "everything, in Malayalam"}, {"ml": "ഓട്ടോമാറ്റിക്", "accent": "ഓട്ടോമാറ്റിക്"}]},
+    {"kind": "keyword", "at": 2.5, "dur": 2.2, "ml": "ശ്രദ്ധ", "en": "focus", "kicker": "ഒരു വാക്ക്"},
+    {"kind": "lower", "at": 4.6, "dur": 2.6, "kicker": "Tip 03", "ml": "കുട്ടികളുടെ ശ്രദ്ധ", "accent": "ശ്രദ്ധ", "en": "how focus builds"},
+    {"kind": "quote", "at": 7.1, "dur": 3.0, "ml": "ചെറിയ ചുവടുകൾ, വലിയ മാറ്റം.", "accent": "വലിയ മാറ്റം", "by": "ശില്പ"},
+    {"kind": "counter", "at": 10.0, "dur": 2.6, "from": 0, "to": 12500, "suffix": "+", "ml": "ഫോളോവേഴ്സ്"},
+    {"kind": "list", "at": 12.5, "dur": 3.4, "title": "ഇന്നത്തെ പ്ലാൻ", "items": ["ഗ്രാഫിക്സ് ഡിസൈൻ", "സ്റ്റെപ്പിൽ ശ്രദ്ധ", "ക്ഷേത്രം ദർശനം"]},
+    {"kind": "cta", "at": 15.8, "dur": 2.4, "ml": "കമന്റ് ചെയ്യൂ", "en": "and I will send you the link"}
+  ]
+}
