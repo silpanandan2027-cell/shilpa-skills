@@ -234,7 +234,7 @@
       const shadow = spec.theme === 'clear' || spec.transparent || sc.shadow ? `text-shadow:0 ${px(4)} ${px(20)} rgba(0,0,0,.55),0 0 ${px(3)} rgba(0,0,0,.6)` : '';
       const items = chunks.map(ch => {
         const d = el('div', 'abs ctr ml ' + fontClass(sc.font, 'display'), root, `top:${sc.y ?? 68}%;font-size:${px(sc.size ?? 96)};display:none;${shadow}`);
-        const sp = ch.map((w, i) => { if (i) d.appendChild(document.createTextNode(' ')); const s = el('span', 'g', d); s.textContent = w.w; return s; });
+        const sp = ch.map((w, i) => { if (i) d.appendChild(document.createTextNode(' ')); const s = el('span', 'g', d); s.textContent = w.w; s.style.margin = '0 .12em'; return s; });
         d.style.display = 'block'; fit(d, W * 0.92); d.style.display = 'none';
         const start = ch[0].t, last = ch[ch.length - 1];
         return { d, sp, ch, start, end: (last.e ?? last.t + 0.5) + 0.12 };
