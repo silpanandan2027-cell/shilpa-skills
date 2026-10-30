@@ -28,6 +28,10 @@ Then restart Claude Code. Type `/` and the skills appear.
 
 > Easier: open Claude Code and say **"Install the skills from github.com/silpanandan2027-cell/shilpa-skills"**.
 
+## Full guide
+
+New to this? Follow [GUIDE.md](GUIDE.md): set up your folders, teach Claude your style, drop in a raw video, approve a storyboard, and export.
+
 ## Use
 
 1. Open Claude Code.
