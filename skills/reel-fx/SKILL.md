@@ -1,6 +1,6 @@
 ---
 name: reel-fx
-description: Add effects and animated Malayalam text to a video or reel (punch-in zoom, camera shake, colour looks, vignette, flash, cinema bars, progress bar, titles, lower thirds, counters, call-to-action buttons, word-timed subtitles). Use when the user types /reel-fx, or asks to add an effect, zoom, colour grade, caption, subtitle, title or text animation to a video they give you.
+description: Add effects and animated Malayalam text to a video or reel (zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, colour looks, vignette, flash, cinema bars, progress bar, titles, lower thirds, counters, call-to-action buttons, word-timed subtitles). Use when the user types /reel-fx, or asks to add an effect, zoom, colour grade, caption, subtitle, title or text animation to a video they give you.
 ---
 
 # reel-fx
@@ -29,6 +29,11 @@ Run `python scripts/fx.py --list` for this list.
 | `fx` | What it does | Options |
 |---|---|---|
 | `punch` | Quick zoom in and back out on a moment | `zoom` (1.3), `x`, `y` (where to zoom, 0 to 1; use `y` around 0.3 to aim at a face) |
+| `zoom` | Slow zoom in or out over the time given (`from` bigger than `to` zooms out) | `from` (1.0), `to` (1.3), `hold` (keep the end zoom), `x`, `y` |
+| `brightness` (or `light`) | Brighten, darken or relight a moment | `amount` (0.15, negative darkens), `contrast`, `saturation`, `gamma`, `ramp` |
+| `rotate` | Tilt the picture and back (the picture is zoomed a little so no corners show) | `angle` (6, up to 15 either way), `ramp` |
+| `blur` | Blur the picture | `strength` (12) |
+| `mirror` | Flip left to right | |
 | `shake` | Camera shake | `amount` (0.012) |
 | `grade` | A colour look | `look`: `warm`, `cool`, `mono`, `film`, `moody`, `pop`, `fade` |
 | `vignette` | Dark edges | `strength` |

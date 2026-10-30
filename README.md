@@ -5,7 +5,7 @@ Two skills for [Claude Code](https://claude.com/claude-code) that edit your vide
 | Skill | What it does |
 |---|---|
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
-| `/reel-fx` | Effects for your own video: punch-in zoom, camera shake, colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
+| `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
 
 ## Install
 

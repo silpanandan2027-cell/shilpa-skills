@@ -24,6 +24,11 @@ LOOKS = {
 }
 EFFECTS = {
     'punch':    'Quick zoom in and back out. zoom (1.3), x, y (0..1 focus, default centre)',
+    'zoom':     'Slow zoom in or out over the time given. from (1.0), to (1.3), hold (keep the end zoom), x, y',
+    'brightness': 'Brighten, darken or relight a moment. amount (0.15, negative darkens), contrast, saturation, gamma, ramp (0.4 s)',
+    'rotate':   'Tilt the picture and back. angle (6, up to 15 degrees either way), ramp (0.5 s)',
+    'blur':     'Blur the picture. strength (12)',
+    'mirror':   'Flip the picture left to right',
     'shake':    'Camera shake. amount (0.012 of the width)',
     'grade':    'Colour look. look: ' + ', '.join(LOOKS),
     'vignette': 'Dark edges. strength (PI/4)',
@@ -114,6 +119,35 @@ def main():
             fx_, fy_ = float(d.get('x', 0.5)), float(d.get('y', 0.5))
             apply(f"scale=w='trunc(iw*({zexp})/2)*2':h='trunc(ih*({zexp})/2)*2':eval=frame,"
                   f"crop={W}:{H}:x='(in_w-out_w)*{fx_}':y='(in_h-out_h)*{fy_}'")
+        elif k == 'zoom':
+            z0 = max(1.0, float(d.get('from', 1.0))); z1 = max(1.0, float(d.get('to', 1.3)))
+            pr = f'min(1,max(0,(t-{s})/({e}-{s})))'; ez = f'({pr}*{pr}*(3-2*{pr}))'
+            if d.get('hold'):
+                zexp = esc(f'{z0}+({z1}-{z0})*{ez}')
+            else:
+                zexp = esc(f'1+({z0}-1+({z1}-{z0})*{ez})*between(t,{s},{e})')
+            fx_, fy_ = float(d.get('x', 0.5)), float(d.get('y', 0.5))
+            apply(f"scale=w='trunc(iw*({zexp})/2)*2':h='trunc(ih*({zexp})/2)*2':eval=frame,"
+                  f"crop={W}:{H}:x='(in_w-out_w)*{fx_}':y='(in_h-out_h)*{fy_}'")
+        elif k in ('brightness', 'light'):
+            r = float(d.get('ramp', 0.4))
+            env = f'max(0,min(1,min((t-{s})/{r},({e}-t)/{r})))'
+            b = float(d.get('amount', 0.15)); c = float(d.get('contrast', 1.0))
+            sat = float(d.get('saturation', 1.0)); gm = float(d.get('gamma', 1.0))
+            apply(f"eq=brightness='{esc(f'{b}*{env}')}':contrast='{esc(f'1+({c}-1)*{env}')}':"
+                  f"saturation='{esc(f'1+({sat}-1)*{env}')}':gamma='{esc(f'1+({gm}-1)*{env}')}':eval=frame")
+        elif k in ('rotate', 'tilt'):
+            import math
+            ang = max(-15.0, min(15.0, float(d.get('angle', 6)))); r = float(d.get('ramp', 0.5))
+            th = math.radians(abs(ang)); ar = max(W / H, H / W)
+            sc_ = math.cos(th) + math.sin(th) * ar + 0.01        # zoom just enough that no corner shows
+            env = f'max(0,min(1,min((t-{s})/{r},({e}-t)/{r})))'
+            window(f"scale=trunc(iw*{sc_:.4f}/2)*2:trunc(ih*{sc_:.4f}/2)*2,"
+                   f"rotate=a='{esc(f'{math.radians(ang):.5f}*{env}')}':ow=iw:oh=ih:c=black,crop={W}:{H}", s, e)
+        elif k == 'blur':
+            window(f"gblur=sigma={float(d.get('strength', 12))}", s, e)
+        elif k == 'mirror':
+            window('hflip', s, e)
         elif k == 'shake':
             amp = float(d.get('amount', 0.012)) * W
             window(f"scale=iw*1.08:ih*1.08,crop={W}:{H}:x='(in_w-out_w)/2+{amp:.1f}*sin(t*63)':y='(in_h-out_h)/2+{amp:.1f}*cos(t*51)'", s, e)
