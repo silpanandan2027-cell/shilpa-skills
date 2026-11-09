@@ -1,11 +1,12 @@
 # Shilpa's Claude Skills
 
-Two skills for [Claude Code](https://claude.com/claude-code) that edit your videos for you. You talk, Claude does the editing.
+Three skills for [Claude Code](https://claude.com/claude-code) that edit your videos for you. You talk, Claude does the editing.
 
 | Skill | What it does |
 |---|---|
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
+| `/video-to-skill` | Turns a video link into a new Claude skill. Downloads the video, grabs frames, transcribes the speech (or uses its captions), then writes a `SKILL.md` that teaches the steps. |
 
 ## Install
 
