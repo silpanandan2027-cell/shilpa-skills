@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 .DS_Store
 .venv/
+gta6-video/build/out/

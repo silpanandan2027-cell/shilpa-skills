@@ -1,0 +1,413 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Anton;src:url(fonts/anton-latin-400-normal.woff2)}
+@font-face{font-family:Bebas;src:url(fonts/bebas-neue-latin-400-normal.woff2)}
+@font-face{font-family:Pacifico;src:url(fonts/pacifico-latin-400-normal.woff2)}
+html,body{margin:0;background:#000}
+canvas{display:block}
+</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// ---------------------------------------------------------------------------
+// GTA 6 explainer: every frame is drawn here. render(t) paints time t (seconds).
+// window.TIMING = [{idx, section, start, end, text}] comes from build/out/timing.json
+// ---------------------------------------------------------------------------
+const W = 1920, H = 1080;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const PINK = '#ff2e88', TEAL = '#19e3d6', GOLD = '#ffc44d', PURP = '#7b2ff7', INK = '#0b0420';
+let T = [];                       // sentence timings
+const S = i => T[i].start, E = i => T[i].end;
+const at = (i, f) => S(i) + (E(i) - S(i)) * f;   // a point inside sentence i
+
+// ---- tiny helpers -----------------------------------------------------------
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => 1 - Math.pow(1 - clamp(x), 3);
+const easeIO = x => (x = clamp(x), x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const back = x => { x = clamp(x); const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function lerp(a, b, x) { return a + (b - a) * x; }
+function font(px, fam = 'Anton') { g.font = `${px}px ${fam}`; }
+
+// ---- cached layers ----------------------------------------------------------
+function layer(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return c; }
+
+function skyline(seed, base, hmin, hmax, col, lit) {
+  return layer(2400, 600, (x, w, h) => {
+    const r = rng(seed); let px = 0;
+    while (px < w) {
+      const bw = 40 + r() * 110, bh = hmin + r() * (hmax - hmin) * (r() < .15 ? 1.7 : 1);
+      x.fillStyle = col; x.fillRect(px, h - bh, bw, bh);
+      if (r() < .3) { x.fillRect(px + bw * .4, h - bh - 40 - r() * 60, 4, 60 + r() * 40); }   // antenna
+      if (r() < .25) { x.beginPath(); x.moveTo(px, h - bh); x.lineTo(px + bw / 2, h - bh - bw * .5); x.lineTo(px + bw, h - bh); x.fill(); }
+      if (lit) for (let wy = h - bh + 14; wy < h - 10; wy += 16) for (let wx = px + 8; wx < px + bw - 8; wx += 13)
+        if (r() < lit) { x.fillStyle = r() < .7 ? 'rgba(255,214,140,.85)' : 'rgba(255,90,170,.8)'; x.fillRect(wx, wy, 5, 7); x.fillStyle = col; }
+      px += bw + r() * 6;
+    }
+  });
+}
+function palm(seed, scale) {
+  return layer(700, 1100, (x, w, h) => {
+    const r = rng(seed); x.fillStyle = '#05010d'; x.strokeStyle = '#05010d';
+    const bx = w * .5, top = { x: w * .5 + (r() - .5) * 220, y: 260 };
+    x.lineWidth = 26; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(bx, h); x.quadraticCurveTo(bx + (top.x - bx) * 1.6, h * .55, top.x, top.y); x.stroke();
+    for (let i = 0; i < 9; i++) {
+      const a = -Math.PI / 2 + (i / 8 - .5) * Math.PI * 1.55 + (r() - .5) * .2, L = 240 + r() * 90;
+      const ex = top.x + Math.cos(a) * L, ey = top.y + Math.sin(a) * L * .55 + L * .35;
+      const mx = top.x + Math.cos(a) * L * .5, my = top.y + Math.sin(a) * L * .5 - 30;
+      x.lineWidth = 7; x.beginPath(); x.moveTo(top.x, top.y); x.quadraticCurveTo(mx, my, ex, ey); x.stroke();
+      for (let k = 1; k < 14; k++) {           // leaflets
+        const f = k / 14, px = (1 - f) * (1 - f) * top.x + 2 * (1 - f) * f * mx + f * f * ex,
+              py = (1 - f) * (1 - f) * top.y + 2 * (1 - f) * f * my + f * f * ey;
+        x.lineWidth = 4; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a + 1.3) * 50 * (1 - f * .6), py + 38 * (1 - f * .5)); x.stroke();
+        x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a - 1.3) * 50 * (1 - f * .6), py + 38 * (1 - f * .5)); x.stroke();
+      }
+    }
+    x.beginPath(); x.arc(top.x, top.y + 12, 20, 0, 7); x.fill();
+  });
+}
+const L = {};
+function buildLayers() {
+  L.farDusk = skyline(7, 0, 50, 150, '#2a0b4a', 0);
+  L.nearDusk = skyline(11, 0, 90, 250, '#12042a', .18);
+  L.farNight = skyline(7, 0, 50, 150, '#170630', .08);
+  L.nearNight = skyline(11, 0, 90, 250, '#08021a', .42);
+  L.palmA = palm(3); L.palmB = palm(9); L.palmC = palm(21);
+  L.grain = [0, 1, 2, 3].map(s => layer(960, 540, (x, w, h) => {
+    const d = x.createImageData(w, h), r = rng(100 + s);
+    for (let i = 0; i < d.data.length; i += 4) { const v = r() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+    x.putImageData(d, 0, 0);
+  }));
+  L.scan = layer(W, H, (x) => { x.fillStyle = 'rgba(0,0,0,.18)'; for (let y = 0; y < H; y += 4) x.fillRect(0, y, W, 2); });
+  L.vig = layer(W, H, (x) => {
+    const gr = x.createRadialGradient(W / 2, H / 2, H * .35, W / 2, H / 2, H * .95);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.72)'); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  });
+}
+
+// ---- scenes -----------------------------------------------------------------
+function sunset(t, night, push = 0) {
+  const k = 1 + push * .08, ox = Math.sin(t * .05) * 40;
+  g.save(); g.translate(W / 2, H / 2); g.scale(k, k); g.translate(-W / 2, -H / 2);
+  const hz = 640;
+  let sky = g.createLinearGradient(0, 0, 0, hz);
+  if (night) { sky.addColorStop(0, '#05021a'); sky.addColorStop(.6, '#1d0840'); sky.addColorStop(1, '#4a0f5e'); }
+  else { sky.addColorStop(0, '#1a0638'); sky.addColorStop(.45, '#6b1a74'); sky.addColorStop(.78, '#ff4f7b'); sky.addColorStop(1, '#ffb15c'); }
+  g.fillStyle = sky; g.fillRect(-100, -100, W + 200, hz + 100);
+  if (night) { const r = rng(5); g.fillStyle = '#fff'; for (let i = 0; i < 160; i++) { g.globalAlpha = .3 + .7 * Math.abs(Math.sin(t * (0.5 + r()) + i)); g.fillRect(r() * W, r() * hz * .7, 2, 2); } g.globalAlpha = 1; }
+  // sun
+  const sx = W / 2 + ox * .2, sy = night ? 360 : 420, sr = night ? 150 : 220;
+  g.save(); g.shadowColor = night ? '#ff4fa0' : '#ffb15c'; g.shadowBlur = 120;
+  const sg = g.createLinearGradient(0, sy - sr, 0, sy + sr);
+  if (night) { sg.addColorStop(0, '#ffe4f3'); sg.addColorStop(1, '#ff4fa0'); } else { sg.addColorStop(0, '#fff3a8'); sg.addColorStop(.5, '#ff9f45'); sg.addColorStop(1, '#ff2e88'); }
+  g.fillStyle = sg; g.beginPath(); g.arc(sx, sy, sr, 0, 7); g.fill(); g.restore();
+  g.fillStyle = sky; // stripes cut through the lower half of the sun
+  for (let i = 0; i < 7; i++) { const yy = sy + 10 + i * i * 4.2 + i * 14, hh = 3 + i * 2.2; const sgr = g.createLinearGradient(0, 0, 0, hz); g.fillStyle = night ? '#2a0b4a' : '#ff6f6f'; g.globalAlpha = night ? .9 : .75; g.fillRect(sx - sr - 5, yy + ((t * 12) % 14), sr * 2 + 10, hh); }
+  g.globalAlpha = 1;
+  // skyline
+  const far = night ? L.farNight : L.farDusk, near = night ? L.nearNight : L.nearDusk;
+  g.drawImage(far, -200 + ox * .3 - 120, hz - 600 + 10, 2400, 600);
+  g.drawImage(near, -300 + ox * .6, hz - 600 + 40, 2400, 600);
+  // water
+  const wg = g.createLinearGradient(0, hz, 0, H);
+  wg.addColorStop(0, night ? '#1a0636' : '#5a1466'); wg.addColorStop(1, '#07010f');
+  g.fillStyle = wg; g.fillRect(-100, hz, W + 200, H - hz + 100);
+  for (let i = 0; i < 26; i++) {           // sun reflection shimmer
+    const y = hz + 8 + i * i * .62 + i * 6, w = (sr * 1.3) * (1 - i / 30) * (0.7 + .3 * Math.sin(t * 2 + i * 1.7));
+    g.fillStyle = night ? `rgba(255,79,160,${.5 - i / 60})` : `rgba(255,180,90,${.65 - i / 45})`;
+    g.fillRect(sx - w / 2 + Math.sin(t * 1.3 + i) * 12, y, w, 2 + i * .12);
+  }
+  if (night) for (let i = 0; i < 40; i++) { const r = rng(40 + i); const x = r() * W; g.fillStyle = r() < .5 ? 'rgba(255,214,140,.35)' : 'rgba(255,90,170,.3)'; g.fillRect(x + ox * .6, hz + 4 + r() * 70, 2, 10 + r() * 50); }
+  // palms
+  const sway = Math.sin(t * .8) * .02;
+  g.save(); g.translate(110 + ox * 1.4, H + 60); g.rotate(sway); g.drawImage(L.palmA, -350, -1150, 700, 1100); g.restore();
+  g.save(); g.translate(380 + ox * 1.2, H + 160); g.rotate(-sway * .7); g.drawImage(L.palmC, -280, -980, 560, 880); g.restore();
+  g.save(); g.translate(W - 110 + ox * 1.4, H + 80); g.rotate(-sway); g.scale(-1, 1); g.drawImage(L.palmB, -350, -1150, 700, 1100); g.restore();
+  g.restore();
+}
+
+function gridScene(t) {
+  const hz = 560;
+  let sky = g.createLinearGradient(0, 0, 0, hz); sky.addColorStop(0, '#04010f'); sky.addColorStop(1, '#3a0a52');
+  g.fillStyle = sky; g.fillRect(0, 0, W, hz);
+  g.save(); g.shadowColor = PINK; g.shadowBlur = 80; const sg = g.createLinearGradient(0, 300, 0, 560);
+  sg.addColorStop(0, '#ffd36b'); sg.addColorStop(1, PINK); g.fillStyle = sg; g.beginPath(); g.arc(W / 2, 520, 170, Math.PI, 0); g.fill(); g.restore();
+  g.fillStyle = '#3a0a52'; for (let i = 0; i < 6; i++) g.fillRect(W / 2 - 180, 400 + i * 22 + i * i * 2, 360, 3 + i * 1.6);
+  // mountains
+  g.fillStyle = '#12042a'; g.beginPath(); g.moveTo(0, hz);
+  const r = rng(77); for (let x = 0; x <= W; x += 60) g.lineTo(x, hz - 40 - Math.abs(Math.sin(x * .004)) * 140 - r() * 40); g.lineTo(W, hz); g.fill();
+  g.fillStyle = '#07010f'; g.fillRect(0, hz, W, H - hz);
+  g.strokeStyle = PINK; g.lineWidth = 2; g.shadowColor = PINK; g.shadowBlur = 12;
+  for (let i = -24; i <= 24; i++) { g.beginPath(); g.moveTo(W / 2 + i * 30, hz); g.lineTo(W / 2 + i * 260, H); g.stroke(); }
+  const sp = (t * .9) % 1;
+  for (let j = 0; j < 14; j++) { const z = (j + sp) / 14, y = hz + (H - hz) * z * z; g.globalAlpha = clamp(z * 2); g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+  g.globalAlpha = 1; g.shadowBlur = 0;
+}
+
+function darkBg(t, hue = PURP) {
+  const gr = g.createRadialGradient(W / 2, H * .45, 50, W / 2, H / 2, W * .75);
+  gr.addColorStop(0, '#2a0c4e'); gr.addColorStop(1, '#05010e'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(123,47,247,.18)'; g.lineWidth = 1;
+  const off = (t * 10) % 60; for (let x = -60 + off; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  for (let y = -60 + off; y < H; y += 60) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+}
+
+// Leonida: a Florida-like state outline, drawn by hand, plus the keys.
+const STATE = [[600,120],[1180,120],[1240,150],[1260,230],[1300,330],[1350,430],[1395,540],[1430,650],[1440,760],[1420,850],[1380,905],[1330,925],[1270,900],[1215,840],[1160,760],[1110,690],[1070,640],[1050,570],[1020,500],[990,440],[940,380],[880,330],[820,300],[760,290],[690,300],[630,320],[590,280],[580,200]];
+const PINS = [
+  { n: 'VICE CITY', x: 1395, y: 760, c: PINK, big: 1 }, { n: 'LEONIDA KEYS', x: 1220, y: 985, c: TEAL },
+  { n: 'GRASSRIVERS', x: 1225, y: 865, c: TEAL }, { n: 'PORT GELLHORN', x: 760, y: 250, c: TEAL },
+  { n: 'AMBROSIA', x: 1130, y: 330, c: TEAL }, { n: 'MOUNT KALAGA N.P.', x: 980, y: 190, c: TEAL }];
+function mapScene(t, t0, pinTimes) {
+  darkBg(t);
+  const k = 1 + ease((t - t0) / 30) * .06; g.save(); g.translate(W / 2, H / 2); g.scale(k, k); g.translate(-W / 2 - 60, -H / 2 + 30);
+  const draw = ease((t - t0) / 1.6);
+  g.save(); g.beginPath(); STATE.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath();
+  const fg = g.createLinearGradient(600, 120, 1440, 925); fg.addColorStop(0, 'rgba(25,227,214,.10)'); fg.addColorStop(1, 'rgba(255,46,136,.22)');
+  g.globalAlpha = draw; g.fillStyle = fg; g.fill();
+  g.setLineDash([4000]); g.lineDashOffset = 4000 * (1 - draw); g.strokeStyle = TEAL; g.lineWidth = 4; g.shadowColor = TEAL; g.shadowBlur = 20; g.stroke(); g.restore();
+  g.globalAlpha = draw; g.fillStyle = TEAL; [[1300, 960], [1250, 980], [1200, 992], [1150, 1000], [1100, 1004], [1050, 1006]].forEach(([x, y], i) => { g.beginPath(); g.ellipse(x, y, 16 - i, 6, -.2, 0, 7); g.fill(); });
+  g.globalAlpha = 1;
+  PINS.forEach((p, i) => {
+    const pt = pinTimes[i]; if (pt == null || t < pt) return;
+    const a = back((t - pt) / .45), r = p.big ? 16 : 11;
+    g.save(); g.translate(p.x, p.y); g.scale(a, a);
+    g.shadowColor = p.c; g.shadowBlur = 30; g.fillStyle = p.c; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.globalAlpha = .5 * (1 - ((t * 1.2) % 1)); g.strokeStyle = p.c; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, r + 30 * ((t * 1.2) % 1), 0, 7); g.stroke(); g.globalAlpha = 1;
+    g.shadowBlur = 0; font(p.big ? 54 : 34, 'Anton'); g.textBaseline = 'middle';
+    const left = p.x > 1300; g.textAlign = left ? 'right' : 'left';
+    g.fillStyle = 'rgba(5,1,14,.75)'; const tw = g.measureText(p.n).width;
+    g.fillRect(left ? -tw - 44 : 24, -30, tw + 20, 60); g.fillStyle = '#fff'; g.fillText(p.n, left ? -34 : 34, 2); g.restore();
+  });
+  g.restore();
+  title2('STATE OF LEONIDA', 'ROCKSTAR\'S TAKE ON FLORIDA', t - t0, 120, 150);
+}
+
+function bust(x, y, s, col, t, hair) {    // simple neon silhouette of a person, head and shoulders
+  g.save(); g.translate(x, y); g.scale(s, s);
+  if (hair) { g.fillStyle = '#05010e'; g.strokeStyle = col; g.lineWidth = 5; g.shadowColor = col; g.shadowBlur = 30;
+    g.beginPath(); g.moveTo(-100, -120); g.bezierCurveTo(-130, -230, 130, -230, 105, -110); g.bezierCurveTo(140, 0, 150, 120, 120, 170);
+    g.lineTo(-125, 170); g.bezierCurveTo(-150, 110, -140, 0, -100, -120); g.fill(); g.stroke(); }
+  g.fillStyle = '#05010e'; g.strokeStyle = col; g.lineWidth = 5; g.shadowColor = col; g.shadowBlur = 30;
+  g.beginPath(); g.moveTo(-220, 330); g.bezierCurveTo(-210, 170, -120, 130, -60, 120); g.lineTo(-45, 70);
+  g.bezierCurveTo(-95, 40, -100, -60, -90, -110); g.bezierCurveTo(-80, -190, 80, -190, 90, -110);
+  g.bezierCurveTo(100, -60, 95, 40, 45, 70); g.lineTo(60, 120); g.bezierCurveTo(120, 130, 210, 170, 220, 330); g.closePath();
+  g.fill(); g.stroke(); g.restore();
+}
+function charCard(t, t0, x, name, sub, col, tag) {
+  if (t < t0) return;
+  const a = ease((t - t0) / .6), dx = (1 - a) * (x < W / 2 ? -500 : 500);
+  g.save(); g.translate(x + dx, 0); g.globalAlpha = a;
+  const cw = 640, ch = 760, cx = -cw / 2, cy = 190;
+  const gr = g.createLinearGradient(0, cy, 0, cy + ch); gr.addColorStop(0, 'rgba(20,6,40,.92)'); gr.addColorStop(1, col + '55');
+  g.fillStyle = gr; g.fillRect(cx, cy, cw, ch);
+  g.strokeStyle = col; g.lineWidth = 4; g.shadowColor = col; g.shadowBlur = 24; g.strokeRect(cx, cy, cw, ch); g.shadowBlur = 0;
+  g.save(); g.beginPath(); g.rect(cx, cy, cw, ch); g.clip(); bust(0, cy + 420, 1.15, col, t, name === 'LUCIA'); g.restore();
+  g.fillStyle = col; g.fillRect(cx, cy + ch - 190, cw, 6);
+  font(96, 'Anton'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(name, 0, cy + ch - 90);
+  font(40, 'Bebas'); g.fillStyle = col; g.fillText(sub, 0, cy + ch - 35);
+  if (tag && t > tag.t) { const b = back((t - tag.t) / .4); g.save(); g.translate(0, cy + 70); g.rotate(-.06); g.scale(b, b);
+    font(44, 'Anton'); const tw = g.measureText(tag.s).width; g.fillStyle = col; g.fillRect(-tw / 2 - 24, -38, tw + 48, 64); g.fillStyle = '#05010e'; g.fillText(tag.s, 0, 10); g.restore(); }
+  g.restore();
+}
+
+// ---- type ------------------------------------------------------------------
+function neonText(s, x, y, px, col, fam = 'Anton', align = 'center', glow = 30) {
+  font(px, fam); g.textAlign = align; g.textBaseline = 'alphabetic';
+  g.save(); g.shadowColor = col; g.shadowBlur = glow; g.fillStyle = col; g.fillText(s, x, y); g.restore();
+  g.fillStyle = '#fff'; g.fillText(s, x, y);
+}
+function chrome(s, x, y, px) {
+  font(px, 'Anton'); g.textAlign = 'center';
+  const gr = g.createLinearGradient(0, y - px * .8, 0, y); gr.addColorStop(0, '#ffffff'); gr.addColorStop(.48, '#c6d7ff'); gr.addColorStop(.52, '#5b3a8c'); gr.addColorStop(1, '#ffd1f0');
+  g.save(); g.shadowColor = PINK; g.shadowBlur = 50; g.fillStyle = gr; g.fillText(s, x, y); g.restore();
+  g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.6)'; g.strokeText(s, x, y);
+}
+// a punchy callout: pops in, holds, slides out
+function callout(t, t0, t1, s, opt = {}) {
+  if (t < t0 || t > t1 + .25) return;
+  const inA = back((t - t0) / .28), out = clamp((t - t1) / .25), y = opt.y ?? 900, px = opt.px ?? 110, col = opt.col ?? PINK;
+  g.save(); g.globalAlpha = 1 - out; g.translate(opt.x ?? W / 2, y - out * 30); g.scale(inA, inA); g.rotate(opt.rot ?? -.025);
+  font(px, 'Anton'); const tw = g.measureText(s).width;
+  if (opt.box !== false) { g.fillStyle = 'rgba(5,1,14,.78)'; g.fillRect(-tw / 2 - 34, -px * .92, tw + 68, px * 1.18); g.fillStyle = col; g.fillRect(-tw / 2 - 34, px * .2, tw + 68, 8); }
+  neonText(s, 0, 0, px, col); g.restore();
+}
+function title2(a, b, dt, x, y) {
+  if (dt < 0) return; const p = ease(dt / .7);
+  g.save(); g.globalAlpha = p; g.translate((1 - p) * -60, 0);
+  font(84, 'Anton'); g.textAlign = 'left'; g.fillStyle = '#fff'; g.fillText(a, x, y);
+  font(40, 'Bebas'); g.fillStyle = TEAL; g.fillText(b, x + 4, y + 50); g.restore();
+}
+function chapter(t, t0, n, s) {
+  const d = t - t0; if (d < 0 || d > 4.6) return;
+  const p = ease(d / .5) * (1 - ease((d - 4) / .6));
+  g.save(); g.globalAlpha = p; g.translate(70 - (1 - p) * 40, 80);
+  g.fillStyle = PINK; g.fillRect(0, 0, 10, 74);
+  font(30, 'Bebas'); g.textAlign = 'left'; g.fillStyle = PINK; g.fillText('CHAPTER ' + n, 28, 28);
+  font(48, 'Anton'); g.fillStyle = '#fff'; g.fillText(s, 28, 74); g.restore();
+}
+
+// ---- timeline graphic (chapter 1) -------------------------------------------
+function timelineGfx(t) {
+  const y = 760, x0 = 230, x1 = 1640;
+  const nodes = [
+    { t: at(6, .25), x: 230, top: '2013', bot: 'GTA 5 RELEASED', c: TEAL },
+    { t: at(9, .3), x: 610, top: 'DEC 2023', bot: 'TRAILER 1', c: TEAL },
+    { t: at(10, .4), x: 950, top: '2025', bot: 'FIRST TARGET', c: '#9aa', strike: at(11, .1) },
+    { t: at(11, .3), x: 1260, top: 'MAY 26 2026', bot: 'DELAYED', c: '#9aa', strike: at(12, .2) },
+    { t: at(12, .5), x: x1, top: 'NOV 19 2026', bot: 'LAUNCH DAY', c: PINK, big: 1 }];
+  const last = nodes.filter(n => t >= n.t).pop(); if (!last) return;
+  const reach = Math.min(x1, last.x);
+  g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 6; g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
+  g.save(); g.strokeStyle = TEAL; g.shadowColor = TEAL; g.shadowBlur = 20; g.beginPath(); g.moveTo(x0, y); g.lineTo(reach, y); g.stroke(); g.restore();
+  nodes.forEach(n => {
+    if (t < n.t) return; const a = back((t - n.t) / .45);
+    g.save(); g.translate(n.x, y); g.scale(a, a);
+    g.shadowColor = n.c; g.shadowBlur = 30; g.fillStyle = n.c; g.beginPath(); g.arc(0, 0, n.big ? 26 : 16, 0, 7); g.fill(); g.shadowBlur = 0;
+    font(n.big ? 72 : 54, 'Anton'); g.textAlign = 'center'; g.fillStyle = n.big ? '#fff' : '#eee'; g.fillText(n.top, 0, -60);
+    font(38, 'Bebas'); g.fillStyle = n.c; g.fillText(n.bot, 0, 80);
+    if (n.strike && t > n.strike) { const p = ease((t - n.strike) / .3); font(54, 'Anton'); const tw = g.measureText(n.top).width;
+      g.strokeStyle = PINK; g.lineWidth = 8; g.beginPath(); g.moveTo(-tw / 2 - 10, -78); g.lineTo(-tw / 2 - 10 + (tw + 20) * p, -78); g.stroke(); }
+    g.restore();
+  });
+}
+
+// ---- price + questions -------------------------------------------------------
+function priceScene(t) {
+  darkBg(t);
+  const t0 = at(35, .45), v = clamp((t - t0) / 1.0);
+  if (t > t0 - .2) { const n = (79.99 * easeIO(v)).toFixed(2); chrome('$' + n, W / 2, 560, 300); font(44, 'Bebas'); g.textAlign = 'center'; g.fillStyle = TEAL; g.fillText('STANDARD EDITION', W / 2, 640); }
+  else neonText('OKAY, MONEY.', W / 2, 560, 160, GOLD);
+  [['PS5', S(37) + .6, 720], ['XBOX SERIES X|S', S(37) + 1.4, 1200]].forEach(([s, tt, x]) => {
+    if (t < tt) return; const a = back((t - tt) / .4); g.save(); g.translate(x, 790); g.scale(a, a);
+    font(56, 'Anton'); const tw = g.measureText(s).width; g.strokeStyle = TEAL; g.lineWidth = 4; g.shadowColor = TEAL; g.shadowBlur = 20;
+    g.strokeRect(-tw / 2 - 34, -58, tw + 68, 84); g.shadowBlur = 0; g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(s, 0, 4); g.restore();
+  });
+}
+function questionScene(t) {
+  darkBg(t);
+  const qs = [{ s: 'PC?', a: S(41) + .3, ans: 'NO DATE YET', b: at(42, .3) },
+              { s: 'GTA ONLINE?', a: S(44) + .3, ans: 'NOT AT LAUNCH', b: at(45, .55) },
+              { s: 'SUPPORT?', a: at(46, .5), ans: '10 MORE YEARS?', b: at(47, .7) }];
+  if (t < qs[0].a) { neonText('?', W / 2, 700, 520, PINK, 'Anton', 'center', 60); return; }
+  qs.forEach((q, i) => {
+    if (t < q.a) return; const y = 330 + i * 250, a = ease((t - q.a) / .4);
+    g.save(); g.globalAlpha = a; g.translate((1 - a) * -80, 0); neonText(q.s, 300, y, 150, PINK, 'Anton', 'left'); g.restore();
+    if (t > q.b) { const b = back((t - q.b) / .35); g.save(); g.translate(1400, y - 55); g.rotate(-.05); g.scale(b, b);
+      font(64, 'Anton'); const tw = g.measureText(q.ans).width; g.strokeStyle = TEAL; g.lineWidth = 6; g.strokeRect(-tw / 2 - 26, -60, tw + 52, 84);
+      g.fillStyle = TEAL; g.textAlign = 'center'; g.fillText(q.ans, 0, 4); g.restore(); }
+  });
+}
+
+// ---- end screen ----------------------------------------------------------------
+function endScreen(t, t0) {
+  sunset(t, true, 0); g.fillStyle = 'rgba(5,1,14,.62)'; g.fillRect(0, 0, W, H);
+  const a = ease((t - t0) / .8); g.globalAlpha = a;
+  neonText('THANKS FOR WATCHING', W / 2, 200, 96, PINK);
+  // empty frames where YouTube's end-screen video cards go (left + right) and the subscribe button (centre)
+  g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3; g.setLineDash([14, 10]);
+  g.strokeRect(150, 380, 680, 382); g.strokeRect(1090, 380, 680, 382);
+  g.beginPath(); g.arc(W / 2, 571, 110, 0, 7); g.stroke(); g.setLineDash([]);
+  font(40, 'Bebas'); g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.7)';
+  g.fillText('WATCH NEXT', 490, 830); g.fillText('WATCH NEXT', 1430, 830); g.fillText('SUBSCRIBE', W / 2, 740);
+  font(80, 'Pacifico'); g.save(); g.shadowColor = TEAL; g.shadowBlur = 30; g.fillStyle = '#fff'; g.fillText('see you in Vice City', W / 2, 980); g.restore();
+  g.globalAlpha = 1;
+}
+
+// ---- the edit: which scene plays when ------------------------------------------
+let CUTS = [];
+function render(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.shadowBlur = 0; g.setLineDash([]);
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const sec = n => T.find(x => x.section === n).start - .5;
+  const END = E(56) + .9;
+
+  if (t < S(2) - .1) {                                            // cold open
+    if (t > S(0)) { const f = t - S(0), on = f > .5 || (Math.floor(f * 22) % 3 !== 0);
+      if (on) neonText('4 DAYS', W / 2, 600, 260, PINK, 'Anton', 'center', 70); }
+    if (t > S(1)) { font(56, 'Bebas'); g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText("THAT'S IT.", W / 2, 720); }
+  } else if (t < sec(1)) {                                        // hook over the sunset
+    sunset(t, false, clamp((t - S(2)) / 24));
+    const ht = t - S(2); if (ht < 6) { const p = ease(ht / 1.2) * (1 - ease((ht - 5) / 1));
+      g.save(); g.globalAlpha = p; chrome('GRAND THEFT AUTO 6', W / 2, 300, 150); font(48, 'Bebas'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('EVERYTHING YOU NEED TO KNOW', W / 2, 370); g.restore(); }
+    callout(t, at(2, .58), at(2, .75), '10+ YEARS', { col: GOLD });
+    callout(t, at(2, .75), at(2, .9), '2 DELAYS', { col: TEAL });
+    callout(t, at(2, .9), E(2) + .4, 'NOV 19', { col: PINK, px: 150 });
+    callout(t, at(3, .55), E(3), '$80', { col: GOLD, px: 130 });
+    ['STORY', 'MAP', 'CHARACTERS', 'PRICE'].forEach((w, i) => callout(t, at(4, .3 + i * .1), E(4) + .3, w, { col: [TEAL, PINK, GOLD, TEAL][i], px: 76, x: 360 + i * 400, y: 920, rot: 0 }));
+  } else if (t < sec(2)) {                                        // chapter 1: the long road
+    gridScene(t); chapter(t, sec(1) + .3, '01', 'THE LONG ROAD HERE');
+    timelineGfx(t);
+    callout(t, S(7), E(8), 'LET THAT SINK IN', { y: 330, px: 80, col: GOLD });
+    callout(t, at(9, .55), E(9) + .2, 'ONE OF THE MOST WATCHED REVEALS EVER', { y: 330, px: 64, col: TEAL });
+    callout(t, at(14, .3), E(14) + .3, 'FEWER BUGS = WORTH IT', { y: 330, px: 80, col: GOLD });
+  } else if (t < S(17) - .2) {                                    // chapter 2 opener
+    sunset(t, true, clamp((t - sec(2)) / 6)); chapter(t, sec(2) + .3, '02', 'WELCOME TO LEONIDA');
+    callout(t, at(15, .4), E(15) + .2, 'BACK TO VICE CITY', { px: 140, col: PINK });
+    callout(t, at(16, .3), E(16) + .2, 'BUT BIGGER', { px: 120, col: TEAL });
+  } else if (t < S(20) - .2) {                                    // the map
+    const d = E(19) - S(19), p = [at(18, .2), S(19) + d * .05, S(19) + d * .22, S(19) + d * .45, S(19) + d * .62, S(19) + d * .74];
+    mapScene(t, S(17) - .2, p);
+  } else if (t < sec(3)) {                                        // alive
+    sunset(t, true, clamp((t - S(20)) / 16));
+    callout(t, at(21, .2), E(21) + .3, 'ALIVE.', { px: 170, col: TEAL });
+    ['PHONES', 'CROWDS', 'TRAFFIC'].forEach((w, i) => callout(t, at(22, .1 + i * .3), E(22) + .3, w, { px: 90, col: [PINK, GOLD, TEAL][i], x: 520 + i * 440, y: 900, rot: 0 }));
+  } else if (t < sec(4)) {                                        // chapter 3: Jason + Lucia
+    darkBg(t); chapter(t, sec(3) + .3, '03', 'JASON & LUCIA');
+    if (t < S(25)) callout(t, at(24, .1), S(25), 'FIRST FEMALE LEAD IN A MAIN GTA', { y: 560, px: 86, col: PINK });
+    charCard(t, S(25) - .1, 560, 'LUCIA', 'CAMINOS', PINK, { t: at(26, .35), s: 'MET IN PRISON' });
+    charCard(t, S(27) + .2, 1360, 'JASON', 'DUVAL', TEAL, { t: at(27, .6), s: 'WANTS OUT' });
+    callout(t, at(28, .45), E(29), 'MODERN BONNIE & CLYDE', { y: 1010, px: 72, col: GOLD });
+    callout(t, at(32, 0), E(33), 'PEOPLE > EXPLOSIONS', { y: 1010, px: 80, col: PINK });
+  } else if (t < sec(5)) {                                        // chapter 4: price
+    priceScene(t); chapter(t, sec(4) + .3, '04', 'PRICE & PRELOAD');
+    callout(t, at(38, .1), E(38) + .2, 'PRELOAD OPEN SINCE NOV 12', { y: 960, px: 72, col: TEAL });
+    callout(t, at(39, .2), E(39) + .3, 'UNLOCK TIME VARIES BY REGION', { y: 960, px: 72, col: GOLD });
+  } else if (t < sec(6)) {                                        // chapter 5: questions
+    questionScene(t); chapter(t, sec(5) + .3, '05', 'STILL UNKNOWN');
+  } else if (t < END) {                                           // chapter 6: verdict
+    sunset(t, false, clamp((t - sec(6)) / 34)); chapter(t, sec(6) + .3, '06', 'WORTH THE HYPE?');
+    callout(t, at(49, .4), E(49) + .2, '10 YEARS OF HYPE', { px: 110, col: GOLD });
+    ['RDR2', 'GTA 5', 'SAN ANDREAS'].forEach((w, i) => callout(t, at(51, i * .3), E(52), w, { px: 100, col: [TEAL, PINK, GOLD][i], x: 500 + i * 460, y: 880, rot: 0 }));
+    callout(t, at(53, .1), E(53) + .2, 'CLEAR THE WEEKEND', { px: 110, col: TEAL });
+    if (t > S(54) && t < E(54) + .3) { const a = back((t - S(54)) / .4); g.save(); g.translate(W / 2, 560); g.scale(a, a);
+      neonText('LUCIA', -330, 0, 170, PINK); neonText('OR', 0, 0, 90, '#fff', 'Bebas'); neonText('JASON', 330, 0, 170, TEAL);
+      font(54, 'Bebas'); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText('TELL ME IN THE COMMENTS', 0, 110); g.restore(); }
+    callout(t, at(55, .55), E(55) + .2, 'SUBSCRIBE', { px: 120, col: PINK });
+    if (t > S(56)) { const a = ease((t - S(56)) / .6); g.globalAlpha = a; font(130, 'Pacifico'); g.textAlign = 'center';
+      g.save(); g.shadowColor = PINK; g.shadowBlur = 50; g.fillStyle = '#fff'; g.fillText('see you in Vice City', W / 2, 600); g.restore(); g.globalAlpha = 1; }
+  } else endScreen(t, END);
+
+  // transition flash + glitch on every cut
+  for (const c of CUTS) { const d = t - c; if (d >= 0 && d < .28) {
+    const p = 1 - d / .28; g.fillStyle = `rgba(255,255,255,${p * .55})`; g.fillRect(0, 0, W, H);
+    const r = rng(Math.floor(t * 60)); for (let i = 0; i < 7; i++) { const y = r() * H, h = 10 + r() * 60; g.drawImage(cv, 0, y, W, h, (r() - .5) * 120 * p, y, W, h); }
+  } }
+  // film finish: grain, scanlines, vignette
+  g.globalAlpha = .07; g.drawImage(L.grain[Math.floor(t * 24) % 4], 0, 0, W, H); g.globalAlpha = .5; g.drawImage(L.scan, 0, 0); g.globalAlpha = 1; g.drawImage(L.vig, 0, 0);
+}
+
+window.setup = async (timing) => {
+  T = timing; await document.fonts.load('100px Anton'); await document.fonts.load('100px Bebas'); await document.fonts.load('100px Pacifico');
+  buildLayers();
+  const sec = n => T.find(x => x.section === n).start - .5;
+  CUTS = [S(2) - .1, sec(1), sec(2), S(17) - .2, S(20) - .2, sec(3), sec(4), sec(5), sec(6), E(56) + .9];
+  return { end: E(56) + .9 + 18 };
+};
+window.render = render;
+// YouTube thumbnail, 1920x1080 (scaled to 1280x720 on export)
+window.thumb = () => {
+  g.setTransform(1, 0, 0, 1, 0, 0); sunset(21, false, .6);
+  g.fillStyle = 'rgba(5,1,14,.35)'; g.fillRect(0, 0, W, H);
+  g.save(); g.translate(560, 560); g.rotate(-.05); chrome('GTA 6', 0, 0, 330); g.restore();
+  g.save(); g.translate(560, 790); g.rotate(-.05); font(150, 'Anton'); const s = 'IN 4 DAYS'; const tw = g.measureText(s).width;
+  g.fillStyle = PINK; g.fillRect(-tw / 2 - 40, -140, tw + 80, 175); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(s, 0, 0); g.restore();
+  g.save(); g.translate(1470, 360); g.rotate(.06); font(96, 'Anton'); g.textAlign = 'center';
+  g.fillStyle = 'rgba(5,1,14,.8)'; g.fillRect(-300, -100, 600, 250); g.strokeStyle = TEAL; g.lineWidth = 6; g.strokeRect(-300, -100, 600, 250);
+  g.fillStyle = TEAL; g.fillText('EVERYTHING', 0, 0); g.fillStyle = '#fff'; g.fillText('TO KNOW', 0, 110); g.restore();
+  g.drawImage(L.vig, 0, 0);
+  return cv.toDataURL('image/jpeg', .95);
+};
+window.frame = (t, q = .9) => { render(t); return cv.toDataURL('image/jpeg', q); };
+</script></body></html>
