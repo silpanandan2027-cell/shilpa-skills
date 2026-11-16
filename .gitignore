@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 .venv/
 gta6-video/build/out/
+gta6-video/build/assets/rs/

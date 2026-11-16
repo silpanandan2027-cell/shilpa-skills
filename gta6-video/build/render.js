@@ -8,10 +8,11 @@ const fs = require('fs'), path = require('path');
 (async () => {
   const [mode, out, ...rest] = process.argv.slice(2);
   const timing = JSON.parse(fs.readFileSync(path.join(__dirname, 'out/timing.json')));
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   await page.goto('file://' + path.join(__dirname, 'engine.html'));
   const info = await page.evaluate(t => window.setup(t), timing);
+  if (info.missing && info.missing.length) console.error("MISSING IMAGES:", info.missing);
   const grab = async t => Buffer.from((await page.evaluate(t => window.frame(t), t)).split(',')[1], 'base64');
 
   if (mode === 'stills') {

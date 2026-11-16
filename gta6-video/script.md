@@ -9,17 +9,22 @@ official Rockstar trailer footage that you add yourself, with credit in the desc
 
 ## 0:00 Hook
 
-[VISUAL] Black screen. Neon "4 DAYS" fades in. Hard cut to the Vice City skyline.
-[CLIP] Trailer 1 opening shot: the beach, the sunset.
+[VISUAL] Black. A huge "13" slams in over a fast flash of official GTA 6 footage.
+[VISUAL] Rapid cuts of official clips (city, beach, cars) on the beat, each hit with a flash.
+[VISUAL] "200,000,000 COPIES" counter. Then the GTA VI key art punches in: "NOV 19".
 
-Four days. That's it. After more than ten years of waiting, two delays, and about a million
-fake leaks, Grand Theft Auto 6 finally lands on November 19th.
+Thirteen years.
 
-So if you've been half paying attention and you want the full picture before you drop eighty
-bucks on it, stay with me. I'm going to run through everything: the story, the map, the
-characters, the price, and the stuff Rockstar still isn't telling us.
+That's how long it's been since the last Grand Theft Auto, a game that sold more than two
+hundred million copies.
 
-## 0:27 The long road here
+And on November 19th, Rockstar finally hands us the sequel: a brand new Vice City, two
+outlaws on the run, and a first trailer that set a YouTube record on day one.
+
+So before you spend eighty bucks on it, stay with me. I'm going to run through everything:
+the story, the map, the characters, the price, and the stuff Rockstar still isn't telling us.
+
+## 0:32 The long road here
 
 [VISUAL] Timeline card: 2013 → Dec 2023 → May 2025 → Nov 2026.
 
@@ -32,7 +37,7 @@ May 26th, 2026. Then, one more time, to November 19th, 2026.
 
 And honestly? If the extra time means fewer bugs on day one, I'm fine with that.
 
-## 1:04 Welcome to Leonida
+## 1:09 Welcome to Leonida
 
 [VISUAL] Map-style card: "STATE OF LEONIDA". Region names pop in one at a time.
 [CLIP] Trailer 2: aerial shots of the city and the swamps.
@@ -47,7 +52,7 @@ What makes this exciting isn't just the size. It's how alive it looks. In the tr
 film each other on their phones, crowds pack the beach, and there's traffic everywhere. It looks
 less like a game map and more like a place that keeps going when you're not looking.
 
-## 1:44 Jason and Lucia
+## 1:49 Jason and Lucia
 
 [VISUAL] Two character cards side by side. Neon pink for Lucia, teal for Jason.
 [CLIP] Trailer 2: Lucia's prison scene, then Jason.
@@ -62,7 +67,7 @@ plan after another, and the question of whether they trust each other enough to 
 Rockstar's best stories have always been about people. Not explosions. People. And this pair
 already feels more personal than anything they've done before.
 
-## 2:24 What it actually costs
+## 2:30 What it actually costs
 
 [VISUAL] Price card: "$79.99 STANDARD". Small text: "PS5 · Xbox Series X|S".
 
@@ -72,7 +77,7 @@ you can install it right now and be ready the second it unlocks.
 
 The exact unlock time depends on where you live, so check your store page.
 
-## 2:50 The stuff we still don't know
+## 2:55 The stuff we still don't know
 
 [VISUAL] Big neon question marks. Three lines appear: "PC?", "GTA ONLINE?", "DLC?"
 
@@ -85,7 +90,7 @@ about the story.
 And third: how long will Rockstar support this game? If GTA 5 is anything to go by, the answer
 is probably the next ten years.
 
-## 3:17 Is it worth the hype?
+## 3:22 Is it worth the hype?
 
 [VISUAL] Slow push on the Vice City sunset. Music builds.
 [CLIP] Final shot of the last trailer.
@@ -112,15 +117,15 @@ GTA 6 launches November 19, 2026 on PS5 and Xbox Series X|S. Here's everything y
 before release day: the story of Jason and Lucia, the State of Leonida and Vice City, the price,
 preload, and the big questions that are still open (PC and GTA Online).
 
-Footage: Grand Theft Auto VI trailers © Rockstar Games, used for commentary.
+Images: official Grand Theft Auto VI screenshots and artwork © Rockstar Games (rockstargames.com/VI), used for commentary and news.
 
 Chapters
-0:00 Four days to go
-0:27 The long road here
-1:04 Welcome to Leonida
-1:44 Jason and Lucia
-2:24 Price and preload
-2:50 What we still don't know
-3:17 Is it worth the hype?
+0:00 Thirteen years
+0:32 The long road here
+1:09 Welcome to Leonida
+1:49 Jason and Lucia
+2:30 Price and preload
+2:55 What we still don't know
+3:22 Is it worth the hype?
 
 #GTA6 #GTAVI #ViceCity #RockstarGames

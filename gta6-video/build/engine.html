@@ -315,97 +315,242 @@ function endScreen(t, t0) {
   g.globalAlpha = 1;
 }
 
-// ---- the edit: which scene plays when ------------------------------------------
-let CUTS = [];
+// ---- v2 edit: official GTA VI images as backgrounds, with camera moves and VFX ----------
+// Spliced into engine.html in place of the original edit section by splice_v2.py.
+let CUTS = [], FLICKS = [];
+const IMG = {}, STK = {};
+const IMAGES = ['art_cover','art_gas','art_launch','art_preload','art_ultimate','beach_car','beach_crowd','boat_city',
+  'boat_ocean','boats_top','buggy_mud','cheetah_garage','cheetah_night','city_day','city_night','club','couple_neon',
+  'duo_car','duo_lounge','duo_sunset','graffiti_truck','hotel_neon','jason','kayak_sunset','lucia','masks','music_car',
+  'pool_float','port_sunset','revolver','stilt_house','store_crowd','tattoo_neon','truck_dirt'];
+const STICKERS = { gator: 53, flamingo: 37, crab: 23, sun: 95 };
+const loadImg = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+
+// photo with a slow camera move (zoom + drift), graded toward the video's pink/teal palette
+function photo(name, t, t0, o = {}) {
+  const im = IMG[name]; if (!im) return;
+  const d = o.dur ?? 7, p = clamp((t - t0) / d), h = [...name].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const z0 = o.z0 ?? 1.04, z1 = o.z1 ?? 1.16, z = lerp(z0, z1, easeIO(p) * .6 + p * .4);
+  const dir = (h % 4), dx = [1, -1, 1, -1][dir] * 60 * (p - .5), dy = [1, 1, -1, -1][dir] * 30 * (p - .5);
+  const s = Math.max(W / im.width, H / im.height) * z, w = im.width * s, hh = im.height * s;
+  const fx = o.fx ?? .5, fy = o.fy ?? .5;
+  g.drawImage(im, W / 2 - w * fx + dx, H / 2 - hh * fy + dy, w, hh);
+  g.save(); g.globalCompositeOperation = 'soft-light';
+  const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, 'rgba(123,47,247,.55)'); gr.addColorStop(1, 'rgba(255,46,136,.45)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore();
+  if (o.dim) { g.fillStyle = `rgba(5,1,14,${o.dim})`; g.fillRect(0, 0, W, H); }
+}
+// a sequence of shots: [[startTime, name, opts], ...]; draws the current one
+function shots(t, list, base = {}) {
+  let cur = null; for (const s of list) if (t >= s[0]) cur = s;
+  if (!cur) return; photo(cur[1], t, cur[0], { ...base, ...(cur[2] || {}) });
+}
+// light leak: warm blobs drifting across, screen-blended
+function leak(t, k = 1) {
+  g.save(); g.globalCompositeOperation = 'screen';
+  for (let i = 0; i < 2; i++) {
+    const x = W * (.5 + .6 * Math.sin(t * .23 + i * 2.4)), y = H * (.4 + .4 * Math.cos(t * .17 + i * 1.3)), r = 700 + 200 * Math.sin(t * .3 + i);
+    const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, i ? `rgba(255,120,60,${.18 * k})` : `rgba(255,46,136,${.16 * k})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  }
+  g.restore();
+}
+// floating bokeh dust
+function dust(t) {
+  g.save(); g.globalCompositeOperation = 'screen'; const r = rng(9);
+  for (let i = 0; i < 28; i++) { const sp = .2 + r() * .6, x = (r() * W + t * 30 * sp) % W, y = (r() * H - t * 18 * sp + H * 10) % H, rad = 2 + r() * 7;
+    g.fillStyle = `rgba(255,${180 + r() * 60 | 0},${200 + r() * 55 | 0},${.12 + .15 * Math.sin(t * 2 + i) ** 2})`; g.beginPath(); g.arc(x, y, rad, 0, 7); g.fill(); }
+  g.restore();
+}
+function letterbox(a = 1) { const h = 110 * a; g.fillStyle = '#000'; g.fillRect(0, 0, W, h); g.fillRect(0, H - h, W, h); }
+function bottomShade(k = .75) { const gr = g.createLinearGradient(0, H * .45, 0, H); gr.addColorStop(0, 'rgba(5,1,14,0)'); gr.addColorStop(1, `rgba(5,1,14,${k})`); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
+// one of the site's sticker characters, pops in, plays, pops out
+function sticker(name, t, t0, x, y, size = 420, hold = 2.6) {
+  const d = t - t0; if (d < 0 || d > hold + .3) return; const fr = STK[name]; if (!fr || !fr.length) return;
+  const im = fr[Math.floor(d * 15) % fr.length]; if (!im) return;
+  const a = back(d / .35) * (1 - ease((d - hold) / .3)), w = size, h = im.height * size / im.width;
+  g.save(); g.translate(x, y); g.scale(a, a); g.rotate(Math.sin(d * 3) * .04); g.drawImage(im, -w / 2, -h, w, h); g.restore();
+}
+// framed photo card for a character, cropped around a focus point of the source image
+function photoCard(t, t0, x, name, sub, col, src, fx, fy, crop, tag) {
+  if (t < t0) return; const im = IMG[src]; if (!im) return;
+  const a = ease((t - t0) / .6), dx = (1 - a) * (x < W / 2 ? -500 : 500);
+  g.save(); g.translate(x + dx, 0); g.globalAlpha = a;
+  const cw = 620, ch = 760, cx = -cw / 2, cy = 170;
+  const sw = crop, sh = crop * ch / cw, z = 1 + .05 * clamp((t - t0) / 8);
+  g.save(); g.beginPath(); g.rect(cx, cy, cw, ch); g.clip();
+  g.drawImage(im, fx - sw / 2 / z, fy - sh / 2 / z, sw / z, sh / z, cx, cy, cw, ch);
+  const gr = g.createLinearGradient(0, cy + ch * .55, 0, cy + ch); gr.addColorStop(0, 'rgba(5,1,14,0)'); gr.addColorStop(1, 'rgba(5,1,14,.92)');
+  g.fillStyle = gr; g.fillRect(cx, cy, cw, ch); g.restore();
+  g.strokeStyle = col; g.lineWidth = 5; g.shadowColor = col; g.shadowBlur = 26; g.strokeRect(cx, cy, cw, ch); g.shadowBlur = 0;
+  font(104, 'Anton'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(name, 0, cy + ch - 70);
+  font(42, 'Bebas'); g.fillStyle = col; g.fillText(sub, 0, cy + ch - 22);
+  if (tag && t > tag.t) { const b = back((t - tag.t) / .4); g.save(); g.translate(0, cy + 60); g.rotate(-.06); g.scale(b, b);
+    font(44, 'Anton'); const tw = g.measureText(tag.s).width; g.fillStyle = col; g.fillRect(-tw / 2 - 24, -38, tw + 48, 64); g.fillStyle = '#05010e'; g.fillText(tag.s, 0, 10); g.restore(); }
+  g.restore();
+}
+// graphics scenes (map, price, questions) now sit on a photo: keep their grid, drop the opaque fill
+darkBg = function (t) {
+  g.fillStyle = 'rgba(5,1,14,.62)'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(123,47,247,.16)'; g.lineWidth = 1; const off = (t * 10) % 60;
+  for (let x = -60 + off; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  for (let y = -60 + off; y < H; y += 60) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+};
+function counter(t, t0, to, label, y) {
+  if (t < t0) return; const v = Math.round(to * easeIO((t - t0) / 1.6));
+  const a = ease((t - t0) / .3); g.save(); g.globalAlpha = a;
+  chrome(v.toLocaleString('en-US') + '+', W / 2, y, 170); font(54, 'Bebas'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(label, W / 2, y + 66); g.restore();
+}
+
 function render(t) {
-  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.shadowBlur = 0; g.setLineDash([]);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.shadowBlur = 0; g.setLineDash([]); g.globalCompositeOperation = 'source-over';
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
   const sec = n => T.find(x => x.section === n).start - .5;
   const END = E(56) + .9;
 
-  if (t < S(2) - .1) {                                            // cold open
-    if (t > S(0)) { const f = t - S(0), on = f > .5 || (Math.floor(f * 22) % 3 !== 0);
-      if (on) neonText('4 DAYS', W / 2, 600, 260, PINK, 'Anton', 'center', 70); }
-    if (t > S(1)) { font(56, 'Bebas'); g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText("THAT'S IT.", W / 2, 720); }
-  } else if (t < sec(1)) {                                        // hook over the sunset
-    sunset(t, false, clamp((t - S(2)) / 24));
-    const ht = t - S(2); if (ht < 6) { const p = ease(ht / 1.2) * (1 - ease((ht - 5) / 1));
-      g.save(); g.globalAlpha = p; chrome('GRAND THEFT AUTO 6', W / 2, 300, 150); font(48, 'Bebas'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('EVERYTHING YOU NEED TO KNOW', W / 2, 370); g.restore(); }
-    callout(t, at(2, .58), at(2, .75), '10+ YEARS', { col: GOLD });
-    callout(t, at(2, .75), at(2, .9), '2 DELAYS', { col: TEAL });
-    callout(t, at(2, .9), E(2) + .4, 'NOV 19', { col: PINK, px: 150 });
-    callout(t, at(3, .55), E(3), '$80', { col: GOLD, px: 130 });
+  if (t < S(1) - .15) {                                            // cold open: "Thirteen years."
+    if (t > S(0) - .05) {
+      const f = t - S(0), seq = ['city_night', 'boat_city', 'cheetah_night', 'club', 'kayak_sunset', 'hotel_neon', 'city_day'];
+      photo(seq[Math.floor(f / .14) % seq.length], t, S(0), { dim: .5, z0: 1.2, z1: 1.25 });
+      const k = 1 + .5 * Math.max(0, 1 - f / .25); g.save(); g.translate(W / 2, 640); g.scale(k, k);
+      neonText('13', 0, 0, 520, PINK, 'Anton', 'center', 80); g.restore();
+      font(64, 'Bebas'); g.textAlign = 'center'; g.fillStyle = '#fff'; if (f > .35) g.fillText('YEARS', W / 2, 760);
+    }
+    letterbox();
+  } else if (t < S(2) - .1) {                                      // "...sold 200 million copies"
+    const d = E(1) - S(1);
+    shots(t, [[S(1) - .15, 'city_day'], [S(1) + d * .17, 'beach_car'], [S(1) + d * .34, 'boat_ocean'], [S(1) + d * .5, 'cheetah_night'],
+              [S(1) + d * .66, 'buggy_mud'], [S(1) + d * .82, 'kayak_sunset']], { dim: .25, dur: 2.5, z0: 1.05, z1: 1.18 });
+    leak(t); letterbox();
+    callout(t, at(1, .05), at(1, .5), 'GTA 5 · 2013', { y: 880, px: 90, col: TEAL });
+    if (t > at(1, .55)) { g.fillStyle = 'rgba(5,1,14,.45)'; g.fillRect(0, 380, W, 300); counter(t, at(1, .55), 200000000, 'COPIES SOLD', 560); }
+  } else if (t < S(3) - .1) {                                      // Nov 19, new Vice City, two outlaws, YouTube record
+    shots(t, [[S(2) - .1, 'art_cover', { fy: .45 }], [at(2, .42), 'city_night'], [at(2, .6), 'duo_sunset'], [at(2, .78), 'art_launch']], { dim: .15, dur: 4 });
+    leak(t, .8); letterbox(); bottomShade(.5);
+    callout(t, S(2) + .3, at(2, .4), 'NOV 19, 2026', { px: 150, col: PINK });
+    callout(t, at(2, .44), at(2, .59), 'A NEW VICE CITY', { px: 110, col: TEAL });
+    callout(t, at(2, .62), at(2, .77), 'TWO OUTLAWS', { px: 110, col: GOLD });
+    callout(t, at(2, .8), E(2) + .3, 'YOUTUBE RECORD · DAY ONE', { px: 96, col: PINK });
+  } else if (t < sec(1)) {                                         // "before you spend $80" + checklist
+    shots(t, [[S(3) - .1, 'cheetah_garage'], [at(4, .3), 'art_launch'], [at(4, .4), 'city_day'], [at(4, .5), 'duo_lounge'], [at(4, .6), 'art_ultimate']], { dim: .3, dur: 3 });
+    leak(t, .7); bottomShade(.7);
+    const ht = t - S(3); if (ht < 3.2) { const p = ease(ht / .8) * (1 - ease((ht - 2.6) / .6));
+      g.save(); g.globalAlpha = p; chrome('GRAND THEFT AUTO 6', W / 2, 330, 150); font(52, 'Bebas'); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('EVERYTHING YOU NEED TO KNOW', W / 2, 400); g.restore(); }
+    callout(t, at(3, .35), E(3), '$80', { col: GOLD, px: 140 });
     ['STORY', 'MAP', 'CHARACTERS', 'PRICE'].forEach((w, i) => callout(t, at(4, .3 + i * .1), E(4) + .3, w, { col: [TEAL, PINK, GOLD, TEAL][i], px: 76, x: 360 + i * 400, y: 920, rot: 0 }));
-  } else if (t < sec(2)) {                                        // chapter 1: the long road
-    gridScene(t); chapter(t, sec(1) + .3, '01', 'THE LONG ROAD HERE');
+  } else if (t < sec(2)) {                                         // chapter 1: the long road
+    shots(t, [[sec(1), 'hotel_neon'], [S(9), 'art_launch'], [S(10), 'masks'], [S(12), 'art_cover', { fy: .45 }], [S(13), 'duo_car']], { dim: .45, dur: 8 });
+    leak(t, .6); g.fillStyle = 'rgba(5,1,14,.55)'; g.fillRect(0, 600, W, 300);
+    chapter(t, sec(1) + .3, '01', 'THE LONG ROAD HERE');
     timelineGfx(t);
     callout(t, S(7), E(8), 'LET THAT SINK IN', { y: 330, px: 80, col: GOLD });
     callout(t, at(9, .55), E(9) + .2, 'ONE OF THE MOST WATCHED REVEALS EVER', { y: 330, px: 64, col: TEAL });
     callout(t, at(14, .3), E(14) + .3, 'FEWER BUGS = WORTH IT', { y: 330, px: 80, col: GOLD });
-  } else if (t < S(17) - .2) {                                    // chapter 2 opener
-    sunset(t, true, clamp((t - sec(2)) / 6)); chapter(t, sec(2) + .3, '02', 'WELCOME TO LEONIDA');
+  } else if (t < S(17) - .2) {                                     // chapter 2 opener
+    shots(t, [[sec(2), 'city_day'], [S(16), 'city_night']], { dim: .15, dur: 6 }); leak(t); bottomShade(.6);
+    chapter(t, sec(2) + .3, '02', 'WELCOME TO LEONIDA');
     callout(t, at(15, .4), E(15) + .2, 'BACK TO VICE CITY', { px: 140, col: PINK });
     callout(t, at(16, .3), E(16) + .2, 'BUT BIGGER', { px: 120, col: TEAL });
-  } else if (t < S(20) - .2) {                                    // the map
+  } else if (t < S(20) - .2) {                                     // the map, over a darkened skyline
+    photo('boat_city', t, S(17) - .2, { dim: .2, dur: 18 });
     const d = E(19) - S(19), p = [at(18, .2), S(19) + d * .05, S(19) + d * .22, S(19) + d * .45, S(19) + d * .62, S(19) + d * .74];
     mapScene(t, S(17) - .2, p);
-  } else if (t < sec(3)) {                                        // alive
-    sunset(t, true, clamp((t - S(20)) / 16));
+    sticker('flamingo', t, at(18, .25), 300, H + 40, 360, 2.6);
+    sticker('gator', t, S(19) + d * .3, 330, H + 10, 520, 2.8);
+  } else if (t < sec(3)) {                                         // alive
+    shots(t, [[S(20) - .2, 'pool_float'], [S(21), 'beach_crowd'], [S(22), 'store_crowd'], [at(22, .6), 'graffiti_truck'], [S(23), 'port_sunset']], { dim: .2, dur: 5 });
+    leak(t); bottomShade(.65);
     callout(t, at(21, .2), E(21) + .3, 'ALIVE.', { px: 170, col: TEAL });
     ['PHONES', 'CROWDS', 'TRAFFIC'].forEach((w, i) => callout(t, at(22, .1 + i * .3), E(22) + .3, w, { px: 90, col: [PINK, GOLD, TEAL][i], x: 520 + i * 440, y: 900, rot: 0 }));
-  } else if (t < sec(4)) {                                        // chapter 3: Jason + Lucia
-    darkBg(t); chapter(t, sec(3) + .3, '03', 'JASON & LUCIA');
-    if (t < S(25)) callout(t, at(24, .1), S(25), 'FIRST FEMALE LEAD IN A MAIN GTA', { y: 560, px: 86, col: PINK });
-    charCard(t, S(25) - .1, 560, 'LUCIA', 'CAMINOS', PINK, { t: at(26, .35), s: 'MET IN PRISON' });
-    charCard(t, S(27) + .2, 1360, 'JASON', 'DUVAL', TEAL, { t: at(27, .6), s: 'WANTS OUT' });
+  } else if (t < sec(4)) {                                         // chapter 3: Jason + Lucia
+    if (t < S(25) - .1) { photo('duo_sunset', t, sec(3), { dim: .2, dur: 6 }); bottomShade(.6); }
+    else if (t < S(30)) { photo('duo_lounge', t, S(25), { dim: .62, dur: 22 }); }
+    else { shots(t, [[S(30), 'couple_neon'], [S(32), 'duo_car']], { dim: .25, dur: 6 }); bottomShade(.7); }
+    leak(t, .6); chapter(t, sec(3) + .3, '03', 'JASON & LUCIA');
+    if (t < S(25)) callout(t, at(24, .1), S(25), 'FIRST FEMALE LEAD IN A MAIN GTA', { y: 900, px: 86, col: PINK });
+    if (t >= S(25) - .1 && t < S(30)) {
+      photoCard(t, S(25) - .1, 560, 'LUCIA', 'CAMINOS', PINK, 'lucia', 1420, 450, 760, { t: at(26, .35), s: 'MET IN PRISON' });
+      photoCard(t, S(27) + .2, 1360, 'JASON', 'DUVAL', TEAL, 'jason', 700, 540, 820, { t: at(27, .6), s: 'WANTS OUT' });
+    }
     callout(t, at(28, .45), E(29), 'MODERN BONNIE & CLYDE', { y: 1010, px: 72, col: GOLD });
-    callout(t, at(32, 0), E(33), 'PEOPLE > EXPLOSIONS', { y: 1010, px: 80, col: PINK });
-  } else if (t < sec(5)) {                                        // chapter 4: price
+    callout(t, at(32, 0), E(33), 'PEOPLE > EXPLOSIONS', { y: 900, px: 96, col: PINK });
+  } else if (t < sec(5)) {                                         // chapter 4: price
+    shots(t, [[sec(4), 'art_cover', { fy: .45 }], [S(38), 'art_preload'], [S(39), 'art_ultimate']], { dur: 9 });
     priceScene(t); chapter(t, sec(4) + .3, '04', 'PRICE & PRELOAD');
+    sticker('crab', t, S(34) - .1, W - 330, H + 30, 440, 2.4);
     callout(t, at(38, .1), E(38) + .2, 'PRELOAD OPEN SINCE NOV 12', { y: 960, px: 72, col: TEAL });
     callout(t, at(39, .2), E(39) + .3, 'UNLOCK TIME VARIES BY REGION', { y: 960, px: 72, col: GOLD });
-  } else if (t < sec(6)) {                                        // chapter 5: questions
+  } else if (t < sec(6)) {                                         // chapter 5: questions
+    shots(t, [[sec(5), 'masks'], [S(44), 'music_car'], [S(46), 'revolver']], { dur: 9 });
     questionScene(t); chapter(t, sec(5) + .3, '05', 'STILL UNKNOWN');
-  } else if (t < END) {                                           // chapter 6: verdict
-    sunset(t, false, clamp((t - sec(6)) / 34)); chapter(t, sec(6) + .3, '06', 'WORTH THE HYPE?');
+  } else if (t < END) {                                            // chapter 6: verdict
+    shots(t, [[sec(6), 'tattoo_neon'], [S(49), 'club'], [S(50), 'hotel_neon'], [S(51), 'port_sunset'], [S(53), 'kayak_sunset'],
+              [S(55), 'beach_car'], [S(56), 'city_night']], { dim: .2, dur: 6 });
+    leak(t); bottomShade(.6); chapter(t, sec(6) + .3, '06', 'WORTH THE HYPE?');
     callout(t, at(49, .4), E(49) + .2, '10 YEARS OF HYPE', { px: 110, col: GOLD });
     ['RDR2', 'GTA 5', 'SAN ANDREAS'].forEach((w, i) => callout(t, at(51, i * .3), E(52), w, { px: 100, col: [TEAL, PINK, GOLD][i], x: 500 + i * 460, y: 880, rot: 0 }));
     callout(t, at(53, .1), E(53) + .2, 'CLEAR THE WEEKEND', { px: 110, col: TEAL });
-    if (t > S(54) && t < E(54) + .3) { const a = back((t - S(54)) / .4); g.save(); g.translate(W / 2, 560); g.scale(a, a);
-      neonText('LUCIA', -330, 0, 170, PINK); neonText('OR', 0, 0, 90, '#fff', 'Bebas'); neonText('JASON', 330, 0, 170, TEAL);
-      font(54, 'Bebas'); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText('TELL ME IN THE COMMENTS', 0, 110); g.restore(); }
+    if (t > S(54) && t < E(54) + .3) {                              // Lucia or Jason: split screen
+      const a = ease((t - S(54)) / .4);
+      g.save(); g.beginPath(); g.rect(0, 0, W / 2, H); g.clip(); g.translate(-(1 - a) * W / 2, 0); photo('lucia', t, S(54), { fx: .78, fy: .4, z0: 1.3, z1: 1.38, dim: .15 }); g.restore();
+      g.save(); g.beginPath(); g.rect(W / 2, 0, W / 2, H); g.clip(); g.translate((1 - a) * W / 2, 0); photo('jason', t, S(54), { fx: .2, fy: .5, z0: 1.3, z1: 1.38, dim: .15 }); g.restore();
+      g.fillStyle = '#fff'; g.fillRect(W / 2 - 3, 0, 6, H); bottomShade(.7);
+      const b = back((t - S(54) - .2) / .4); g.save(); g.translate(W / 2, 880); g.scale(b, b);
+      neonText('LUCIA', -380, 0, 170, PINK); neonText('OR', 0, -10, 90, '#fff', 'Bebas'); neonText('JASON', 380, 0, 170, TEAL);
+      font(54, 'Bebas'); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText('TELL ME IN THE COMMENTS', 0, 100); g.restore();
+    }
     callout(t, at(55, .55), E(55) + .2, 'SUBSCRIBE', { px: 120, col: PINK });
     if (t > S(56)) { const a = ease((t - S(56)) / .6); g.globalAlpha = a; font(130, 'Pacifico'); g.textAlign = 'center';
       g.save(); g.shadowColor = PINK; g.shadowBlur = 50; g.fillStyle = '#fff'; g.fillText('see you in Vice City', W / 2, 600); g.restore(); g.globalAlpha = 1; }
-  } else endScreen(t, END);
+  } else {                                                         // end screen on the key art
+    photo('art_gas', t, END, { dim: .62, dur: 20 }); leak(t, .5);
+    const a = ease((t - END) / .8); g.globalAlpha = a;
+    neonText('THANKS FOR WATCHING', W / 2, 200, 96, PINK);
+    g.strokeStyle = 'rgba(255,255,255,.4)'; g.lineWidth = 3; g.setLineDash([14, 10]);
+    g.strokeRect(150, 380, 680, 382); g.strokeRect(1090, 380, 680, 382); g.beginPath(); g.arc(W / 2, 571, 110, 0, 7); g.stroke(); g.setLineDash([]);
+    font(40, 'Bebas'); g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.75)';
+    g.fillText('WATCH NEXT', 490, 830); g.fillText('WATCH NEXT', 1430, 830); g.fillText('SUBSCRIBE', W / 2, 740);
+    font(80, 'Pacifico'); g.save(); g.shadowColor = TEAL; g.shadowBlur = 30; g.fillStyle = '#fff'; g.fillText('see you in Vice City', W / 2, 980); g.restore();
+    g.globalAlpha = 1;
+  }
+  dust(t);
 
-  // transition flash + glitch on every cut
+  // chapter cuts: white flash + glitch slices; photo changes inside a scene: a quick soft flash
   for (const c of CUTS) { const d = t - c; if (d >= 0 && d < .28) {
     const p = 1 - d / .28; g.fillStyle = `rgba(255,255,255,${p * .55})`; g.fillRect(0, 0, W, H);
     const r = rng(Math.floor(t * 60)); for (let i = 0; i < 7; i++) { const y = r() * H, h = 10 + r() * 60; g.drawImage(cv, 0, y, W, h, (r() - .5) * 120 * p, y, W, h); }
   } }
+  for (const c of FLICKS) { const d = t - c; if (d >= 0 && d < .16) { g.fillStyle = `rgba(255,240,250,${(1 - d / .16) * .28})`; g.fillRect(0, 0, W, H); } }
   // film finish: grain, scanlines, vignette
-  g.globalAlpha = .07; g.drawImage(L.grain[Math.floor(t * 24) % 4], 0, 0, W, H); g.globalAlpha = .5; g.drawImage(L.scan, 0, 0); g.globalAlpha = 1; g.drawImage(L.vig, 0, 0);
+  g.globalAlpha = .06; g.drawImage(L.grain[Math.floor(t * 24) % 4], 0, 0, W, H); g.globalAlpha = .35; g.drawImage(L.scan, 0, 0); g.globalAlpha = 1; g.drawImage(L.vig, 0, 0);
 }
 
 window.setup = async (timing) => {
   T = timing; await document.fonts.load('100px Anton'); await document.fonts.load('100px Bebas'); await document.fonts.load('100px Pacifico');
   buildLayers();
+  await Promise.all(IMAGES.map(async n => { IMG[n] = await loadImg(`assets/rs/${n}.jpg`); }));
+  await Promise.all(Object.entries(STICKERS).map(async ([n, c]) => {
+    STK[n] = await Promise.all([...Array(c)].map((_, i) => loadImg(`assets/rs/stickers/${n}/${String(i + 1).padStart(3, '0')}.png`)));
+  }));
   const sec = n => T.find(x => x.section === n).start - .5;
-  CUTS = [S(2) - .1, sec(1), sec(2), S(17) - .2, S(20) - .2, sec(3), sec(4), sec(5), sec(6), E(56) + .9];
-  return { end: E(56) + .9 + 18 };
+  CUTS = [S(1) - .15, S(2) - .1, S(3) - .1, sec(1), sec(2), S(17) - .2, S(20) - .2, sec(3), sec(4), sec(5), sec(6), E(56) + .9];
+  const d1 = E(1) - S(1);
+  FLICKS = [S(1) + d1 * .17, S(1) + d1 * .34, S(1) + d1 * .5, S(1) + d1 * .66, S(1) + d1 * .82, at(2, .42), at(2, .6), at(2, .78),
+            at(4, .3), at(4, .4), at(4, .5), at(4, .6), S(9), S(10), S(12), S(13), S(16), S(21), S(22), at(22, .6), S(23), S(25), S(30), S(32),
+            S(38), S(39), S(44), S(46), S(49), S(50), S(51), S(53), S(54), S(55), S(56)];
+  const missing = IMAGES.filter(n => !IMG[n]);
+  return { end: E(56) + .9 + 18, missing };
 };
 window.render = render;
-// YouTube thumbnail, 1920x1080 (scaled to 1280x720 on export)
+// YouTube thumbnail on the official key art
 window.thumb = () => {
-  g.setTransform(1, 0, 0, 1, 0, 0); sunset(21, false, .6);
-  g.fillStyle = 'rgba(5,1,14,.35)'; g.fillRect(0, 0, W, H);
-  g.save(); g.translate(560, 560); g.rotate(-.05); chrome('GTA 6', 0, 0, 330); g.restore();
-  g.save(); g.translate(560, 790); g.rotate(-.05); font(150, 'Anton'); const s = 'IN 4 DAYS'; const tw = g.measureText(s).width;
-  g.fillStyle = PINK; g.fillRect(-tw / 2 - 40, -140, tw + 80, 175); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(s, 0, 0); g.restore();
-  g.save(); g.translate(1470, 360); g.rotate(.06); font(96, 'Anton'); g.textAlign = 'center';
-  g.fillStyle = 'rgba(5,1,14,.8)'; g.fillRect(-300, -100, 600, 250); g.strokeStyle = TEAL; g.lineWidth = 6; g.strokeRect(-300, -100, 600, 250);
-  g.fillStyle = TEAL; g.fillText('EVERYTHING', 0, 0); g.fillStyle = '#fff'; g.fillText('TO KNOW', 0, 110); g.restore();
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over';
+  photo('duo_sunset', 0, 0, { z0: 1.05, z1: 1.05, fx: .55 });
+  const gr = g.createLinearGradient(W, 0, W * .35, 0); gr.addColorStop(0, 'rgba(5,1,14,.85)'); gr.addColorStop(1, 'rgba(5,1,14,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.save(); g.translate(1440, 470); g.rotate(-.05); chrome('GTA 6', 0, 0, 320); g.restore();
+  g.save(); g.translate(1440, 700); g.rotate(-.05); font(130, 'Anton'); const s = 'NOV 19'; const tw = g.measureText(s).width;
+  g.fillStyle = PINK; g.fillRect(-tw / 2 - 40, -120, tw + 80, 155); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(s, 0, 0); g.restore();
+  g.save(); g.translate(1440, 890); g.rotate(-.05); font(84, 'Anton'); g.textAlign = 'center'; g.fillStyle = TEAL; g.fillText('EVERYTHING TO KNOW', 0, 0); g.restore();
   g.drawImage(L.vig, 0, 0);
   return cv.toDataURL('image/jpeg', .95);
 };

@@ -47,6 +47,8 @@ for w in words:
     if w.endswith("'s") and (w[:-2] in base or w[:-2] in EXTRA):
         stem = EXTRA.get(w[:-2]) or base[w[:-2]]; last = stem[-1]
         EXTRA[w] = stem + (["s"] if last in "ptkfθ" else ["z"]); continue
+    if w.endswith("ies") and w[:-3] + "y" in base:
+        EXTRA[w] = base[w[:-3] + "y"] + ["z"]; continue
     for suf, add in (("s", None), ("ed", None)):
         st = w[:-len(suf)]
         if w.endswith(suf) and st in base:
