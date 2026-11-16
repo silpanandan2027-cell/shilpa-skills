@@ -1,0 +1,151 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Anton;src:url(../build/fonts/anton-latin-400-normal.woff2)}
+@font-face{font-family:Bebas;src:url(../build/fonts/bebas-neue-latin-400-normal.woff2)}
+html,body{margin:0;background:#000} canvas{display:block}
+</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// GTA 6 in 40 seconds: vertical Short. render(t) paints time t; T = sentence timings.
+const W = 1080, H = 1920, cv = document.getElementById('c'), g = cv.getContext('2d');
+const PINK = '#ff2e88', TEAL = '#19e3d6', GOLD = '#ffd23f';
+let T = [], CUTS = [];
+const S = i => T[i].start, E = i => T[i].end, at = (i, f) => S(i) + (E(i) - S(i)) * f;
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => 1 - Math.pow(1 - clamp(x), 3);
+const back = x => { x = clamp(x); const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, x) => a + (b - a) * x;
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const font = (px, f = 'Anton') => g.font = `${px}px ${f}`;
+const loadImg = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+const IMG = {}, STK = {};
+const IMAGES = ['art_cover','city_day','city_night','boat_city','cheetah_night','cheetah_garage','duo_sunset','hotel_neon','lucia','jason',
+  'masks','music_car','boat_ocean','kayak_sunset','club','beach_car','buggy_mud','art_launch'];
+
+// landscape photo cropped into the vertical frame around focus fx, with a slow push and a punch-in on the cut
+function photo(name, t, t0, o = {}) {
+  const im = IMG[name]; if (!im) return;
+  const p = clamp((t - t0) / (o.dur ?? 5)), punch = 1 + .1 * (1 - ease((t - t0) / .25));
+  const z = lerp(o.z0 ?? 1.0, o.z1 ?? 1.12, p) * punch;
+  const s = Math.max(W / im.width, H / im.height) * z, w = im.width * s, h = im.height * s;
+  const fx = o.fx ?? .5, fy = o.fy ?? .5, drift = (o.pan ?? 0) * 80 * (p - .5);
+  let x = W / 2 - w * fx + drift; x = Math.min(0, Math.max(W - w, x));
+  let y = H / 2 - h * fy; y = Math.min(0, Math.max(H - h, y));
+  g.drawImage(im, x, y, w, h);
+  g.save(); g.globalCompositeOperation = 'soft-light'; const gr = g.createLinearGradient(0, 0, W, H);
+  gr.addColorStop(0, 'rgba(123,47,247,.5)'); gr.addColorStop(1, 'rgba(255,46,136,.4)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore();
+  if (o.dim) { g.fillStyle = `rgba(5,1,14,${o.dim})`; g.fillRect(0, 0, W, H); }
+}
+function shots(t, list) { let c = null; for (const s of list) if (t >= s[0]) c = s; if (c) photo(c[1], t, c[0], c[2] || {}); }
+function shade() { // keep captions readable: dark band behind the caption zone
+  const gr = g.createLinearGradient(0, H * .45, 0, H * .85); gr.addColorStop(0, 'rgba(5,1,14,0)'); gr.addColorStop(.5, 'rgba(5,1,14,.55)'); gr.addColorStop(1, 'rgba(5,1,14,.2)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const tg = g.createLinearGradient(0, 0, 0, 380); tg.addColorStop(0, 'rgba(5,1,14,.6)'); tg.addColorStop(1, 'rgba(5,1,14,0)'); g.fillStyle = tg; g.fillRect(0, 0, W, 380);
+}
+function outlined(s, x, y, px, fill = '#fff', stroke = 14, fam = 'Anton') {
+  font(px, fam); g.textAlign = 'center'; g.lineJoin = 'round'; g.lineWidth = stroke; g.strokeStyle = '#000'; g.strokeText(s, x, y);
+  g.fillStyle = fill; g.fillText(s, x, y);
+}
+function neon(s, x, y, px, col) { font(px); g.textAlign = 'center'; g.save(); g.shadowColor = col; g.shadowBlur = 50; g.fillStyle = col; g.fillText(s, x, y); g.restore(); g.fillStyle = '#fff'; g.fillText(s, x, y); }
+function stamp(t, t0, t1, s, y, px, col, rot = -.04) {
+  if (t < t0 || t > t1) return; const a = back((t - t0) / .25);
+  g.save(); g.translate(W / 2, y); g.rotate(rot); g.scale(a, a); font(px); const tw = g.measureText(s).width;
+  g.fillStyle = col; g.fillRect(-tw / 2 - 30, -px * .9, tw + 60, px * 1.12); g.fillStyle = '#05010e'; g.textAlign = 'center'; g.fillText(s, 0, 0); g.restore();
+}
+function badge(t, t0, n) {               // the beat number, slams in top-left
+  if (t < t0) return; const a = back((t - t0) / .3);
+  g.save(); g.translate(170, 330); g.scale(a, a); g.rotate(-.08);
+  g.fillStyle = PINK; g.beginPath(); g.arc(0, 0, 110, 0, 7); g.fill(); g.lineWidth = 10; g.strokeStyle = '#fff'; g.stroke();
+  font(150); g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(n, 0, 54); g.restore();
+}
+function sticker(name, t, t0, x, y, size, hold = 2.2) {
+  const d = t - t0; if (d < 0 || d > hold + .3) return; const fr = STK[name]; if (!fr) return; const im = fr[Math.floor(d * 15) % fr.length]; if (!im) return;
+  const a = back(d / .35) * (1 - ease((d - hold) / .3)), h = im.height * size / im.width;
+  g.save(); g.translate(x, y); g.scale(a, a); g.rotate(Math.sin(d * 3) * .05); g.drawImage(im, -size / 2, -h, size, h); g.restore();
+}
+
+// word-by-word captions: up to 3 words on screen, the spoken word pops in gold
+let WORDS = [];
+function buildWords() {
+  WORDS = [];
+  T.forEach(s => {
+    const ws = s.text.replace(/[.,?!:]/g, '').split(/\s+/).filter(Boolean);
+    const total = ws.reduce((a, w) => a + w.length + 2, 0); let tt = s.start;
+    const chunks = []; ws.forEach((w, i) => { if (i % 3 === 0) chunks.push([]); chunks[chunks.length - 1].push(w); });
+    let wi = 0;
+    chunks.forEach(ch => ch.forEach((w, k) => { const d = (s.end - s.start) * (w.length + 2) / total; WORDS.push({ w, a: tt, b: tt + d, chunk: ch, k, end: s.end }); tt += d; wi++; }));
+  });
+}
+const BIG = new Set(['THIRTEEN', 'GTA', '6', 'VICE', 'CITY', 'LEONIDA', 'LUCIA', 'JASON', 'FIRST', 'FEMALE', 'PS5', 'XBOX', 'PC', 'ONLINE', 'STORY', 'NINETY', 'SEVENTY', 'NINE']);
+function captions(t, y = 1240) {
+  const cur = WORDS.find(w => t >= w.a && t < Math.max(w.b, Math.min(w.end, w.b + .25)));
+  if (!cur) return;
+  const words = cur.chunk.map(x => x.toUpperCase()); font(118);
+  const widths = words.map(x => g.measureText(x).width), gap = 28, tot = widths.reduce((a, b) => a + b, 0) + gap * (words.length - 1);
+  const sc = Math.min(1, (W - 120) / tot); let x = W / 2 - tot * sc / 2;
+  words.forEach((w, i) => {
+    const on = i === cur.k, pop = on ? 1 + .14 * (1 - ease((t - cur.a) / .12)) : 1;
+    g.save(); g.translate(x + widths[i] * sc / 2, y); g.scale(sc * pop, sc * pop);
+    outlined(w, 0, 0, 118, on ? (BIG.has(w) ? PINK : GOLD) : '#fff', 16); g.restore();
+    x += (widths[i] + gap) * sc;
+  });
+}
+
+function render(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  if (t < S(1) - .1) {                                                    // "Thirteen years."
+    const seq = ['city_night', 'boat_city', 'cheetah_night', 'club', 'kayak_sunset', 'city_day'], f = Math.max(0, t - S(0) + .4);
+    photo(seq[Math.floor(f / .13) % seq.length], t, 0, { dim: .45, fx: .5, z0: 1.15, z1: 1.2 });
+    if (t > S(0) - .05) { const k = 1 + .6 * Math.max(0, 1 - (t - S(0)) / .22); g.save(); g.translate(W / 2, 980); g.scale(k, k); neon('13', 0, 0, 560, PINK); g.restore(); }
+  } else if (t < S(3) - .1) {                                             // drops Nov 19 / everything in 40s
+    shots(t, [[S(1) - .1, 'art_cover', { fx: .66 }], [S(2), 'city_day', { fx: .45 }], [at(2, .35), 'boat_city', { fx: .55 }], [at(2, .7), 'cheetah_night', { fx: .5 }]]);
+    shade(); stamp(t, at(1, .5), E(1) + .3, 'NOV 19', 470, 150, PINK);
+    if (t > S(2)) { font(56, 'Bebas'); }
+  } else if (t < S(5) - .1) {                                             // 1: Vice City + Leonida
+    shots(t, [[S(3) - .1, 'city_day', { fx: .45, pan: 1 }], [at(4, .7), 'city_night', { fx: .55 }]]); shade(); badge(t, S(3), '1');
+    stamp(t, at(4, .2), at(4, .68), 'VICE CITY', 560, 120, TEAL); stamp(t, at(4, .7), E(4) + .3, 'STATE OF LEONIDA', 560, 100, GOLD);
+    sticker('flamingo', t, at(4, .15), 860, 1880, 380, 2.2);
+  } else if (t < S(9) - .1) {                                             // 2: Lucia and Jason
+    shots(t, [[S(5) - .1, 'duo_sunset', { fx: .3 }], [S(7), 'hotel_neon', { fx: .5 }], [S(8), 'lucia', { fx: .74, fy: .35, z0: 1.05, z1: 1.2 }]]); shade(); badge(t, S(5), '2');
+    stamp(t, at(6, .3), E(6) + .2, 'LUCIA + JASON', 560, 110, PINK); stamp(t, S(7) + .1, E(7) + .2, 'BONNIE & CLYDE', 560, 110, GOLD);
+    stamp(t, at(8, .35), E(8) + .3, 'FIRST FEMALE LEAD', 560, 104, TEAL);
+  } else if (t < S(12) - .1) {                                            // 3: price, platforms, no PC
+    shots(t, [[S(9) - .1, 'cheetah_garage', { fx: .5 }], [S(11), 'masks', { fx: .45 }]]); shade(); badge(t, S(9), '3');
+    if (t > at(10, .1) && t < S(11)) { const a = back((t - at(10, .1)) / .35); g.save(); g.translate(W / 2, 640); g.scale(a, a); neon('$79.99', 0, 0, 230, PINK); g.restore();
+      stamp(t, at(10, .6), S(11), 'PS5 · XBOX', 760, 90, TEAL, .03); }
+    stamp(t, S(11), E(11) + .3, 'NO PC DATE', 600, 130, '#ff4d4d');
+    sticker('crab', t, at(10, .05), 840, 1880, 400, 2.3);
+  } else if (t < S(15) - .1) {                                            // 4: no Online at launch
+    shots(t, [[S(12) - .1, 'music_car', { fx: .5 }], [S(14), 'beach_car', { fx: .52 }]]); shade(); badge(t, S(12), '4');
+    stamp(t, at(13, .3), E(13) + .2, 'NO ONLINE AT LAUNCH', 580, 92, '#ff4d4d'); stamp(t, S(14), E(14) + .5, 'ALL STORY', 580, 140, TEAL);
+  } else {                                                                // Lucia or Jason: split screen, top / bottom
+    const a = ease((t - S(15) + .1) / .35);
+    g.save(); g.beginPath(); g.rect(0, 0, W, H / 2); g.clip(); g.translate(-(1 - a) * W, 0); photo('lucia', t, S(15), { fx: .69, fy: 0, z0: 1.35, z1: 1.45 }); g.restore();
+    g.save(); g.beginPath(); g.rect(0, H / 2, W, H / 2); g.clip(); g.translate((1 - a) * W, H / 2 - 120); photo('jason', t, S(15), { fx: .38, fy: 0, z0: 1.35, z1: 1.45 }); g.restore();
+    g.fillStyle = '#fff'; g.fillRect(0, H / 2 - 5, W, 10);
+    outlined('LUCIA', W / 2, 860, 170, PINK, 18); outlined('JASON', W / 2, H / 2 + 200, 170, TEAL, 18);
+    const b = back((t - S(15)) / .3); g.save(); g.translate(W / 2, H / 2 + 50); g.scale(b, b); g.fillStyle = '#fff'; g.beginPath(); g.arc(0, -50, 95, 0, 7); g.fill();
+    font(110); g.textAlign = 'center'; g.fillStyle = '#05010e'; g.fillText('OR', 0, -12); g.restore();
+  }
+  captions(t, t >= S(15) - .1 ? 1560 : 1240);
+  // progress bar (keeps people watching to the end)
+  const end = E(17) + .6; g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(0, 0, W, 12); g.fillStyle = PINK; g.fillRect(0, 0, W * clamp(t / end), 12);
+  // flash on cuts, grain, vignette
+  for (const c of CUTS) { const d = t - c; if (d >= 0 && d < .18) { g.fillStyle = `rgba(255,255,255,${(1 - d / .18) * .45})`; g.fillRect(0, 0, W, H); } }
+  g.globalAlpha = .06; g.drawImage(GRAIN[Math.floor(t * 24) % 3], 0, 0, W, H); g.globalAlpha = 1;
+  const vg = g.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+let GRAIN = [];
+window.setup = async (timing) => {
+  T = timing; await document.fonts.load('100px Anton'); await document.fonts.load('100px Bebas');
+  await Promise.all(IMAGES.map(async n => IMG[n] = await loadImg(`../build/assets/rs/${n}.jpg`)));
+  for (const [n, c] of [['flamingo', 37], ['crab', 23]]) STK[n] = await Promise.all([...Array(c)].map((_, i) => loadImg(`../build/assets/rs/stickers/${n}/${String(i + 1).padStart(3, '0')}.png`)));
+  GRAIN = [0, 1, 2].map(s => { const c = document.createElement('canvas'); c.width = 540; c.height = 960; const x = c.getContext('2d'), d = x.createImageData(540, 960), r = rng(50 + s);
+    for (let i = 0; i < d.data.length; i += 4) { const v = r() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); return c; });
+  buildWords();
+  CUTS = [S(1) - .1, S(2), at(2, .35), at(2, .7), S(3) - .1, at(4, .7), S(5) - .1, S(7), S(8), S(9) - .1, S(11), S(12) - .1, S(14), S(15) - .1];
+  return { end: E(17) + .6, missing: IMAGES.filter(n => !IMG[n]) };
+};
+window.frame = (t, q = .9) => { render(t); return cv.toDataURL('image/jpeg', q); };
+</script></body></html>

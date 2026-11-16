@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 gta6-video/build/out/
 gta6-video/build/assets/rs/
+gta6-video/short/out/

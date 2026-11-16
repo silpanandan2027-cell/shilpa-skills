@@ -75,8 +75,10 @@ snare = room
 
 def ramp(a, b):   # 0 before a, fades to 1 at b
     return np.clip((t - a) / max(b - a, 1e-3), 0, 1)
-drums_in = ramp(2.3, 2.5) * (1 - ramp(DUR - 19, DUR - 17))
-arp_in = ramp(31, 33) * (1 - ramp(DUR - 19, DUR - 17))
+import os
+DRUMS = float(os.environ.get('DRUMS_AT', 2.3)); ARP = float(os.environ.get('ARP_AT', 31)); OUTRO = float(os.environ.get('OUTRO', 19))
+drums_in = ramp(DRUMS, DRUMS + .2) * (1 - ramp(DUR - OUTRO, DUR - OUTRO + 2))
+arp_in = ramp(ARP, ARP + 2) * (1 - ramp(DUR - OUTRO, DUR - OUTRO + 2))
 mix = pad * 1.0 + bass * (0.35 + 0.65 * drums_in) + arp * arp_in + (kick + snare + hat) * drums_in * 0.8
 mix *= np.minimum(1, t / 2.5) * np.minimum(1, (DUR - t) / 3)
 st = np.stack([mix + np.roll(arp * arp_in, 300) * 0.3, mix + np.roll(pad, 220) * 0.15], 1)

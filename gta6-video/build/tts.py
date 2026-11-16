@@ -7,12 +7,14 @@ import json, os, re, sys
 import numpy as np, soundfile as sf, sherpa_onnx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = f"{HERE}/out"; os.makedirs(f"{OUT}/vo", exist_ok=True)
+OUT = os.environ.get("OUTDIR", f"{HERE}/out"); os.makedirs(f"{OUT}/vo", exist_ok=True)
+SCRIPT = os.environ.get("SCRIPT", f"{HERE}/../script.md")
+GAPK = float(os.environ.get("GAPK", 1.0))   # pause multiplier: <1 for punchy Shorts
 K = "/tmp/claude-0/models/kokoro-int8-multi-lang-v1_0"
 VOICE = int(os.environ.get("VOICE", 16))    # 16 = am_michael
 SPEED = float(os.environ.get("SPEED", 1.0))
 
-md = open(f"{HERE}/../script.md").read().split("\n---\n")[1]
+md = open(SCRIPT).read().split("\n---\n")[1]
 sections = []
 for block in re.split(r"\n## ", md)[1:]:
     title, *body = block.split("\n")
@@ -86,10 +88,11 @@ for si, (title, paras) in enumerate(sections):
             track.append(x); t += d
             gap = 0.32 if s.endswith(",") else 0.42
             if s.endswith("?"): gap = 0.55
+            gap *= GAPK
             track.append(np.zeros(int(gap * SR), np.float32)); t += gap
             n += 1; print(f"{t:6.1f}s  {s[:70]}", file=sys.stderr)
-        track.append(np.zeros(int(0.35 * SR), np.float32)); t += 0.35   # paragraph breath
-    track.append(np.zeros(int(0.6 * SR), np.float32)); t += 0.6         # section beat
+        track.append(np.zeros(int(0.35 * GAPK * SR), np.float32)); t += 0.35 * GAPK   # paragraph breath
+    track.append(np.zeros(int(0.6 * GAPK * SR), np.float32)); t += 0.6 * GAPK   # section beat
 track.append(np.zeros(int(2.0 * SR), np.float32)); t += 2.0
 sf.write(f"{OUT}/vo.wav", np.concatenate(track), SR)
 json.dump(timing, open(f"{OUT}/timing.json", "w"), indent=1)
