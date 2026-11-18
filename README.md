@@ -24,7 +24,9 @@ The installer switches all of these on for every project:
 | [Firecrawl](https://firecrawl.dev) | copy any website's vibe | MCP server |
 | [Context7](https://context7.com) | stops Claude writing outdated code | MCP server |
 
-After installing, open Claude Code and run `/mcp` to sign in to **Refero** (needs a paid Refero plan) and **Firecrawl** (free account). The rest work without an account. Chrome DevTools needs Chrome installed.
+An example page built with this stack is in [`examples/landing-page`](examples/landing-page).
+
+After installing, open Claude Code and run `/mcp` to sign in to **Refero** (needs a paid Refero plan) and **Firecrawl** (free account). Context7 works without an account for light use; for more, get a free key at context7.com. The rest work without an account. Chrome DevTools needs Chrome installed.
 
 ## Install
 
