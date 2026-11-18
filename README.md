@@ -1,12 +1,27 @@
 # Shilpa's Claude Skills
 
-Skills for [Claude Code](https://claude.com/claude-code): two that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
+Skills for [Claude Code](https://claude.com/claude-code): three that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
 
 | Skill | What it does |
 |---|---|
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
+| `/video-editor` | Claude as your video editor: download (yt-dlp), cut and join (FFmpeg), subtitles (Whisper), and animated videos in HTML (HyperFrames) or React (Remotion). |
 | `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
+
+## Video tools
+
+The installer puts these on your computer (and Claude cloud sessions install them on startup):
+
+| Tool | What it does |
+|---|---|
+| [Remotion](https://github.com/remotion-dev/remotion) | videos written in React (plus the Remotion agent skills) |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) | videos written in HTML (plus the HyperFrames plugin) |
+| [FFmpeg](https://github.com/FFmpeg/FFmpeg) | cut, join, resize, convert, audio |
+| [Whisper](https://github.com/ggml-org/whisper.cpp) | speech to text and subtitles (whisper.cpp, `base` model) |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | download a video from a link |
+
+Remotion is free for individuals and small teams; a company of 4 or more people needs a Remotion licence.
 
 ## Web design stack
 

@@ -2,7 +2,8 @@
   "enableAllProjectMcpServers": true,
   "enabledPlugins": {
     "impeccable@impeccable": true,
-    "refero@refero": true
+    "refero@refero": true,
+    "hyperframes@hyperframes": true
   },
   "extraKnownMarketplaces": {
     "impeccable": {
@@ -19,6 +20,12 @@
       "source": {
         "source": "github",
         "repo": "referodesign/refero_skill"
+      }
+    },
+    "hyperframes": {
+      "source": {
+        "source": "github",
+        "repo": "heygen-com/hyperframes"
       }
     }
   }
