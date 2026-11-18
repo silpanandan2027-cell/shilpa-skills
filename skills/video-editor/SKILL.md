@@ -32,6 +32,7 @@ Whisper needs a model the first time. Use `base` (multilingual, works for Malaya
 ## 2. Recipes
 
 - **Download**: `yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "raw-footage/%(title)s.%(ext)s" <url>`. Audio only: `-x --audio-format mp3`. Only download videos the user owns or has the right to use.
+  - YouTube and Instagram often refuse cloud servers ("Sign in to confirm you're not a bot", or a redirect to the Instagram login page). On the user's own computer, add `--cookies-from-browser chrome` (or `edge`, `firefox`). In a cloud session, ask the user to export a `cookies.txt` for that site with a browser extension such as "Get cookies.txt LOCALLY", upload it, and add `--cookies cookies.txt`. Treat that file as a password: never print it, commit it or keep it after the download. If it still fails, ask the user to upload the video file instead.
 - **Trim**: `ffmpeg -ss 00:00:05 -to 00:00:20 -i in.mp4 -c:v libx264 -c:a aac out.mp4`
 - **Vertical 9:16**: `ffmpeg -i in.mp4 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -c:a copy out.mp4`
 - **Join**: list the files in `list.txt` (`file 'a.mp4'` per line), then `ffmpeg -f concat -safe 0 -i list.txt -c copy out.mp4` (re-encode if the clips differ).
