@@ -17,7 +17,7 @@ done
 # 2. Video tools: FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion
 if command -v brew >/dev/null 2>&1; then
   brew install ffmpeg yt-dlp whisper-cpp node >/dev/null 2>&1 || echo "brew could not install some video tools"
-elif command -v apt-get >/dev/null 2>&1; then
+elif command -v apt-get >/dev/null 2>&1 && ! { command -v ffmpeg && command -v cmake && command -v g++; } >/dev/null 2>&1; then
   sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg git cmake build-essential python3-pip >/dev/null \
     || echo "apt-get could not install some video tools"
 fi
@@ -25,6 +25,7 @@ if ! command -v yt-dlp >/dev/null 2>&1; then
   python3 -m pip install -q -U --user yt-dlp 2>/dev/null || python3 -m pip install -q -U --user --break-system-packages yt-dlp || true
 fi
 wdir="$HOME/.local/share/whisper.cpp"
+[ -d /opt/whisper.cpp/models ] && wdir=/opt/whisper.cpp  # cloud sessions
 if ! command -v whisper-cli >/dev/null 2>&1 && [ ! -x "$wdir/build/bin/whisper-cli" ]; then
   rm -rf "$wdir" && git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp "$wdir" \
     && (cd "$wdir" && cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF >/dev/null \
