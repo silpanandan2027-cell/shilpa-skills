@@ -1,11 +1,30 @@
 # Shilpa's Claude Skills
 
-Two skills for [Claude Code](https://claude.com/claude-code) that edit your videos for you. You talk, Claude does the editing.
+Skills for [Claude Code](https://claude.com/claude-code): two that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
 
 | Skill | What it does |
 |---|---|
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
+| `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
+
+## Web design stack
+
+The installer switches all of these on for every project:
+
+| Tool | What it does | Installed as |
+|---|---|---|
+| [Impeccable](https://impeccable.style) | stops your site looking AI-made (`/impeccable critique`, `polish`, `audit` ...) | plugin |
+| [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) | 84 DESIGN.md files: Apple, Stripe, Linear, Vercel, Notion and more | inside `/web-design` |
+| [React Bits](https://reactbits.dev) | animated React components | shadcn MCP server |
+| [GSAP](https://gsap.com) | scroll animation | npm, added per project |
+| [Anime.js](https://animejs.com) | micro-animations | npm, added per project |
+| [Refero](https://refero.design) | Claude studies real top designs before it builds | plugin with MCP server |
+| [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Claude tests and fixes its own site in real Chrome | MCP server |
+| [Firecrawl](https://firecrawl.dev) | copy any website's vibe | MCP server |
+| [Context7](https://context7.com) | stops Claude writing outdated code | MCP server |
+
+After installing, open Claude Code and run `/mcp` to sign in to **Refero** (needs a paid Refero plan) and **Firecrawl** (free account). The rest work without an account. Chrome DevTools needs Chrome installed.
 
 ## Install
 
@@ -24,7 +43,7 @@ git clone https://github.com/silpanandan2027-cell/shilpa-skills
 cd shilpa-skills && ./install.sh
 ```
 
-Then restart Claude Code. Type `/` and the skills appear.
+Then restart Claude Code. Type `/` and the skills appear. The installer also adds the plugins and MCP servers above for every project, and adds a short note to `~/.claude/CLAUDE.md` so Claude always uses the web design stack.
 
 > Easier: open Claude Code and say **"Install the skills from github.com/silpanandan2027-cell/shilpa-skills"**.
 

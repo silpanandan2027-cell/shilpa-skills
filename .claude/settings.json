@@ -1,0 +1,25 @@
+{
+  "enableAllProjectMcpServers": true,
+  "enabledPlugins": {
+    "impeccable@impeccable": true,
+    "refero@refero": true
+  },
+  "extraKnownMarketplaces": {
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable",
+        "sparsePaths": [
+          ".claude-plugin",
+          "plugin"
+        ]
+      }
+    },
+    "refero": {
+      "source": {
+        "source": "github",
+        "repo": "referodesign/refero_skill"
+      }
+    }
+  }
+}
