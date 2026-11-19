@@ -1,7 +1,7 @@
 # Installs the skills, plugins and MCP servers into Claude Code (Windows PowerShell),
 # turned on for every project. Run it again to update.
 
-# 1. Skills: malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
+# 1. Skills: malayalam-type, reel-fx, stream-clipper, video-editor, web-design (with 84 DESIGN.md files)
 $dst = Join-Path $HOME ".claude\skills"
 New-Item -ItemType Directory -Force $dst | Out-Null
 Get-ChildItem (Join-Path $PSScriptRoot "skills") -Directory | ForEach-Object {
@@ -54,6 +54,59 @@ foreach ($t in @("ffmpeg", "yt-dlp", "whisper-cli", "hyperframes", "remotion")) 
   else { Write-Host "Video tool missing: $t (open a new terminal; if still missing, run this again)" }
 }
 
+# 2b. Stream clipper: Clips Kitty (app + source for its MCP server), the GTA plugin and AI YouTube Shorts Generator
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+  winget install --id ColinGPT9.ClipsKitty -e --silent --accept-package-agreements --accept-source-agreements *> $null
+  if ($LASTEXITCODE -eq 0) { Write-Host "Installed Clips Kitty (open it once: its setup wizard downloads the AI model)" }
+  else { Write-Host "Clips Kitty: already installed, or install it from the Microsoft Store (search Clips Kitty)" }
+  if (-not (Get-Command git -ErrorAction SilentlyContinue)) { winget install --id Git.Git -e --silent --accept-package-agreements --accept-source-agreements *> $null }
+  if (-not (Get-Command py -ErrorAction SilentlyContinue)) { winget install --id Python.Python.3.12 -e --silent --accept-package-agreements --accept-source-agreements *> $null }
+  $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
+}
+$clips = Join-Path $HOME ".shilpa-clippers"
+New-Item -ItemType Directory -Force $clips | Out-Null
+$repos = @{
+  "clips-studio" = "https://github.com/ColinGPT9/clips-studio"
+  "Grand-Theft-Auto-6-Clips-Kitty-Plugin" = "https://github.com/ColinGPT9/Grand-Theft-Auto-6-Clips-Kitty-Plugin"
+  "AI-Youtube-Shorts-Generator" = "https://github.com/Anil-matcha/AI-Youtube-Shorts-Generator.git"
+}
+if (Get-Command git -ErrorAction SilentlyContinue) {
+  foreach ($name in $repos.Keys) {
+    $dir = Join-Path $clips $name
+    if (Test-Path (Join-Path $dir ".git")) { git -C $dir pull -q --ff-only *> $null }
+    else { git clone -q --depth 1 $repos[$name] $dir *> $null }
+    if (Test-Path $dir) { Write-Host "Downloaded $name to $dir" } else { Write-Host "Could not download $name" }
+  }
+} else { Write-Host "Git is missing, so Clips Kitty's MCP server, the GTA plugin and the Shorts Generator were skipped" }
+# The upstream clips-kitty skill sits next to stream-clipper
+$ckSkill = Join-Path $clips "clips-studio\skills\clips-kitty"
+if (Test-Path $ckSkill) {
+  New-Item -ItemType Directory -Force (Join-Path $dst "clips-kitty") | Out-Null
+  Copy-Item (Join-Path $ckSkill "*") (Join-Path $dst "clips-kitty") -Recurse -Force
+  Write-Host "Installed skill clips-kitty"
+}
+if (Get-Command py -ErrorAction SilentlyContinue) {
+  # Clips Kitty SDK, which installs the GTA plugin into the running app (the stream-clipper skill does that step)
+  $sdk = Join-Path $clips "clips-studio\sdk\python"
+  if (Test-Path $sdk) {
+    py -m pip install -q --user -e "$sdk[yaml]" *> $null
+    if ($LASTEXITCODE -eq 0) { Write-Host "Installed the Clips Kitty SDK (for the GTA plugin)" } else { Write-Host "Could not install the Clips Kitty SDK" }
+  }
+  # AI YouTube Shorts Generator, local mode, in its own venv
+  $sg = Join-Path $clips "AI-Youtube-Shorts-Generator"
+  if (Test-Path $sg) {
+    $sgPy = Join-Path $sg "venv\Scripts\python.exe"
+    if (-not (Test-Path $sgPy)) { py -3 -m venv (Join-Path $sg "venv") *> $null }
+    & $sgPy -m pip install -q -U -r (Join-Path $sg "requirements.txt") -r (Join-Path $sg "requirements-local.txt") "av<16" *> $null
+    if ($LASTEXITCODE -eq 0) { Write-Host "Installed AI YouTube Shorts Generator in $sg" } else { Write-Host "Could not install the Shorts Generator" }
+    $envFile = Join-Path $sg ".env"
+    if (-not (Test-Path $envFile)) { Set-Content -Path $envFile -Value "LLM_PROVIDER=gemini`nGEMINI_API_KEY=`nLOCAL_WHISPER_MODEL=base" -Encoding ASCII }
+    if (-not (Select-String -Path $envFile -Pattern "^(GEMINI|OPENAI)_API_KEY=." -Quiet)) {
+      Write-Host "  Add your Gemini key (free at aistudio.google.com) after GEMINI_API_KEY= in $envFile"
+    }
+  }
+} else { Write-Host "Python is missing, so the Clips Kitty SDK and the Shorts Generator were skipped (open a new terminal and run this again)" }
+
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   Write-Host "Claude Code (claude) is not on PATH, so plugins and MCP servers were skipped."
   Write-Host "Install Claude Code, then run this script again."
@@ -87,6 +140,11 @@ Add-Mcp "chrome-devtools" @("chrome-devtools", '--', "cmd", "/c", "npx", "-y", "
 Add-Mcp "context7" @("--transport", "http", "context7", "https://mcp.context7.com/mcp")
 Add-Mcp "firecrawl" @("--transport", "http", "firecrawl", "https://mcp.firecrawl.dev/v2/mcp-oauth")
 Add-Mcp "shadcn" @("shadcn", '--', "cmd", "/c", "npx", "-y", "shadcn@latest", "mcp")
+# Clips Kitty's MCP server: needs only Python, talks to the open app on 127.0.0.1:8765
+$ckMcp = Join-Path $dst "stream-clipper\scripts\clips_kitty_mcp.py"
+if ((Get-Command py -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $clips "clips-studio\server\mcp.py"))) {
+  Add-Mcp "clips-kitty" @("clips-kitty", '--', "py", "-3", $ckMcp)
+}
 
 # 5. Always use the web-design stack for website work
 $md = Join-Path $HOME ".claude\CLAUDE.md"
@@ -113,6 +171,18 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
 "@
   Add-Content -Path $md -Value $block -Encoding UTF8
   Write-Host "Turned on video-editor for every project in $md"
+}
+if (-not (Select-String -Path $md -Pattern "shilpa-skills:stream-clipper" -Quiet)) {
+  $block = @"
+
+<!-- shilpa-skills:stream-clipper -->
+For clips, highlights, Shorts, Reels or TikToks from a long video or a stream (YouTube, Twitch, Kick, GTA 6 streams included),
+follow the ``stream-clipper`` skill: Clips Kitty with its MCP server and GTA plugin on Windows,
+AI YouTube Shorts Generator in local mode (~/.shilpa-clippers) on Mac and Linux.
+<!-- /shilpa-skills:stream-clipper -->
+"@
+  Add-Content -Path $md -Value $block -Encoding UTF8
+  Write-Host "Turned on stream-clipper for every project in $md"
 }
 
 Write-Host "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."

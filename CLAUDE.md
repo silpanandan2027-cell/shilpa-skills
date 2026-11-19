@@ -11,3 +11,7 @@ switch them on for every project on your computer.
 For any video work (edit, cut, caption, transcribe, download, render, motion graphics), follow the `video-editor` skill
 (`skills/video-editor/SKILL.md`): FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion. The HyperFrames plugin is
 switched on in `.claude/settings.json`; cloud sessions install the tools from the environment's setup script.
+
+For clips, highlights, Shorts, Reels or TikToks from a long video or a stream (GTA 6 streams included), follow the
+`stream-clipper` skill (`skills/stream-clipper/SKILL.md`): Clips Kitty with its MCP server and GTA plugin on Windows, and
+AI YouTube Shorts Generator in local mode on Mac and Linux. `install.sh` / `install.ps1` install them into `~/.shilpa-clippers`.

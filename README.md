@@ -1,12 +1,13 @@
 # Shilpa's Claude Skills
 
-Skills for [Claude Code](https://claude.com/claude-code): three that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
+Skills for [Claude Code](https://claude.com/claude-code): four that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
 
 | Skill | What it does |
 |---|---|
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
 | `/video-editor` | Claude as your video editor: download (yt-dlp), cut and join (FFmpeg), subtitles (Whisper), and animated videos in HTML (HyperFrames) or React (Remotion). |
+| `/stream-clipper` | Turns a long video or stream into 9:16 clips with captions. [Clips Kitty](https://github.com/ColinGPT9/clips-studio) plus its [GTA plugin](https://github.com/ColinGPT9/Grand-Theft-Auto-6-Clips-Kitty-Plugin) on Windows (driven through its MCP server), [AI YouTube Shorts Generator](https://github.com/Anil-matcha/AI-Youtube-Shorts-Generator) on Mac and Linux. |
 | `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
 | `/watch` | Claude watches a video for you: give it a YouTube link or a video file and ask what happens in it. From [bradautomates/claude-video](https://github.com/bradautomates/claude-video), installed as a plugin (in Claude Code it shows as `/watch:watch`). |
 
@@ -21,6 +22,16 @@ The installer puts these on your computer (and Claude cloud sessions install the
 | [FFmpeg](https://github.com/FFmpeg/FFmpeg) | cut, join, resize, convert, audio |
 | [Whisper](https://github.com/ggml-org/whisper.cpp) | speech to text and subtitles (whisper.cpp, `base` model) |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | download a video from a link |
+
+For clipping, the installer also sets up (in `~/.shilpa-clippers`):
+
+| Tool | What it does |
+|---|---|
+| [Clips Kitty](https://github.com/ColinGPT9/clips-studio) | Windows app: finds the best moments in a YouTube, Twitch or Kick link, crops to 9:16 and burns in captions. Free, runs on your PC. Claude drives it through its MCP server (`clips-kitty`). Needs Windows 10/11 and 16 GB of RAM. |
+| [GTA plugin](https://github.com/ColinGPT9/Grand-Theft-Auto-6-Clips-Kitty-Plugin) | teaches Clips Kitty GTA moments: chases, crashes, stunts, fights, reactions. Unofficial; GTA 6 accuracy not tested yet. |
+| [AI YouTube Shorts Generator](https://github.com/Anil-matcha/AI-Youtube-Shorts-Generator) | Mac and Linux (works on Windows too): long video in, ranked shorts out. Local mode; only picking the moments needs a free Gemini key, which you paste into `~/.shilpa-clippers/AI-Youtube-Shorts-Generator/.env`. |
+
+Then just say: *"Clip this stream: &lt;link&gt;"*. Keep Clips Kitty open while Claude works. Only post clips you have the right to use, and credit the streamer.
 
 Remotion is free for individuals and small teams; a company of 4 or more people needs a Remotion licence.
 
