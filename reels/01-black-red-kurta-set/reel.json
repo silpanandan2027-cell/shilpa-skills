@@ -1,0 +1,203 @@
+{
+ "output": "exports/reel-01-black-red-kurta.mp4",
+ "segments": [
+  {
+   "image": "tryon.png",
+   "seconds": 3.3,
+   "shade": true,
+   "motion": {
+    "zoom": [
+     1.0,
+     1.07
+    ],
+    "fx": [
+     0.5,
+     0.5
+    ],
+    "fy": [
+     0.2,
+     0.25
+    ]
+   },
+   "text": [
+    {
+     "text": "Flipkart Find",
+     "font": "GreatVibes-Regular.ttf",
+     "size": 120,
+     "y": 150,
+     "color": [
+      255,
+      120,
+      170
+     ]
+    },
+    {
+     "text": "Embroidered Kurta Set",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 54,
+     "y": 300
+    }
+   ]
+  },
+  {
+   "image": "product/closeup.jpg",
+   "seconds": 2.8,
+   "shade": true,
+   "motion": {
+    "zoom": [
+     1.05,
+     1.18
+    ],
+    "fx": [
+     0.5,
+     0.5
+    ],
+    "fy": [
+     0.15,
+     0.45
+    ]
+   },
+   "text": [
+    {
+     "text": "Red thread embroidery",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 60,
+     "y": 1560
+    },
+    {
+     "text": "on the neckline & cuffs",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 44,
+     "y": 1650,
+     "color": [
+      235,
+      235,
+      235
+     ]
+    }
+   ]
+  },
+  {
+   "image": "product/full.jpg",
+   "seconds": 3.0,
+   "shade": true,
+   "motion": {
+    "zoom": [
+     1.0,
+     1.06
+    ],
+    "fx": [
+     0.5,
+     0.5
+    ],
+    "fy": [
+     0.3,
+     0.35
+    ]
+   },
+   "text": [
+    {
+     "text": "Only ₹799",
+     "font": "Poppins-ExtraBold.ttf",
+     "size": 120,
+     "y": 1400
+    },
+    {
+     "text": "MRP ₹1,999",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 48,
+     "y": 1560,
+     "color": [
+      225,
+      225,
+      225
+     ],
+     "strike": true
+    },
+    {
+     "text": "60% OFF",
+     "font": "Poppins-ExtraBold.ttf",
+     "size": 52,
+     "y": 1680,
+     "color": [
+      20,
+      20,
+      20
+     ],
+     "pill": [
+      255,
+      214,
+      90,
+      255
+     ]
+    }
+   ]
+  },
+  {
+   "image": "tryon.png",
+   "seconds": 3.8,
+   "shade": true,
+   "motion": {
+    "zoom": [
+     1.12,
+     1.0
+    ],
+    "fx": [
+     0.5,
+     0.5
+    ],
+    "fy": [
+     0.3,
+     0.2
+    ]
+   },
+   "text": [
+    {
+     "text": "Follow & comment",
+     "font": "GreatVibes-Regular.ttf",
+     "size": 104,
+     "y": 1390,
+     "color": [
+      255,
+      120,
+      170
+     ]
+    },
+    {
+     "text": "LINK",
+     "font": "Poppins-ExtraBold.ttf",
+     "size": 64,
+     "y": 1540,
+     "color": [
+      255,
+      255,
+      255
+     ],
+     "pill": [
+      230,
+      60,
+      120,
+      255
+     ]
+    },
+    {
+     "text": "Sizes S to 3XL · Office · Festive",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 40,
+     "y": 1680
+    },
+    {
+     "text": "#ad · AI model, real product",
+     "font": "Poppins-SemiBold.ttf",
+     "size": 30,
+     "y": 1770,
+     "color": [
+      210,
+      210,
+      210
+     ]
+    }
+   ]
+  }
+ ]
+}
