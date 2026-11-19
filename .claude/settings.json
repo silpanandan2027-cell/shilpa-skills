@@ -3,7 +3,8 @@
   "enabledPlugins": {
     "impeccable@impeccable": true,
     "refero@refero": true,
-    "hyperframes@hyperframes": true
+    "hyperframes@hyperframes": true,
+    "watch@claude-video": true
   },
   "extraKnownMarketplaces": {
     "impeccable": {
