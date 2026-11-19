@@ -58,16 +58,31 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 0
 fi
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
+# Graphify: turns a codebase or folder into a knowledge graph (/graphify)
+if ! command -v graphify >/dev/null 2>&1; then
+  if command -v uv >/dev/null 2>&1; then uv tool install -q graphifyy >/dev/null 2>&1
+  elif command -v pipx >/dev/null 2>&1; then pipx install graphifyy >/dev/null 2>&1
+  else python3 -m pip install -q --user graphifyy 2>/dev/null || python3 -m pip install -q --user --break-system-packages graphifyy; fi \
+    || echo "Could not install Graphify"
+fi
+export PATH="$HOME/.local/bin:$PATH"
+command -v graphify >/dev/null 2>&1 && graphify install >/dev/null 2>&1 && echo "Installed skill graphify" || true
+
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames, Watch (/watch a video),
+#    Ponytail (laziest working solution) and Agent Skills (spec, plan, build, test, review, ship)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin >/dev/null 2>&1 || true
 claude plugin marketplace add referodesign/refero_skill --scope user >/dev/null 2>&1 || true
 claude plugin marketplace add heygen-com/hyperframes --scope user >/dev/null 2>&1 || true
 claude plugin marketplace add bradautomates/claude-video --scope user >/dev/null 2>&1 || true
+claude plugin marketplace add DietrichGebert/ponytail --scope user >/dev/null 2>&1 || true
+claude plugin marketplace add addyosmani/agent-skills --scope user >/dev/null 2>&1 || true
 claude plugin marketplace update impeccable >/dev/null 2>&1 || true
 claude plugin marketplace update refero >/dev/null 2>&1 || true
 claude plugin marketplace update hyperframes >/dev/null 2>&1 || true
 claude plugin marketplace update claude-video >/dev/null 2>&1 || true
-for p in impeccable@impeccable refero@refero hyperframes@hyperframes watch@claude-video; do
+claude plugin marketplace update ponytail >/dev/null 2>&1 || true
+claude plugin marketplace update addy-agent-skills >/dev/null 2>&1 || true
+for p in impeccable@impeccable refero@refero hyperframes@hyperframes watch@claude-video ponytail@ponytail agent-skills@addy-agent-skills; do
   if claude plugin install "$p" --scope user >/dev/null 2>&1; then echo "Installed plugin $p"
   else echo "Could not install plugin $p (open Claude Code and run: /plugin install $p)"; fi
   claude plugin enable "$p" --scope user >/dev/null 2>&1 || true

@@ -10,6 +10,18 @@ Skills for [Claude Code](https://claude.com/claude-code): three that edit your v
 | `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
 | `/watch` | Claude watches a video for you: give it a YouTube link or a video file and ask what happens in it. From [bradautomates/claude-video](https://github.com/bradautomates/claude-video), installed as a plugin (in Claude Code it shows as `/watch:watch`). |
 
+## Coding plugins
+
+The installer switches these on for every project:
+
+| Tool | What it does | Installed as |
+|---|---|---|
+| [Ponytail](https://github.com/DietrichGebert/ponytail) | makes Claude write the shortest solution that works: no extra code, stdlib first (`/ponytail`, `/ponytail-review`, `/ponytail-audit` ...) | plugin |
+| [Agent Skills](https://github.com/addyosmani/agent-skills) | engineering skills for every step: spec, plan, build, test, review, ship | plugin |
+| [Graphify](https://github.com/Graphify-Labs/graphify) | turns a codebase or folder into a knowledge graph Claude can query (`/graphify .`) | Python tool + skill |
+
+[OmniRoute](https://github.com/diegosouzapw/OmniRoute) is not included: it is an AI gateway server you run yourself and connect your own provider accounts to, not a Claude Code plugin.
+
 ## Video tools
 
 The installer puts these on your computer (and Claude cloud sessions install them on startup):

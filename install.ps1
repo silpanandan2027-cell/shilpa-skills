@@ -60,16 +60,33 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   exit 0
 }
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
+# Graphify: turns a codebase or folder into a knowledge graph (/graphify)
+if (-not (Get-Command graphify -ErrorAction SilentlyContinue)) {
+  if (Get-Command uv -ErrorAction SilentlyContinue) { uv tool install -q graphifyy *> $null }
+  elseif (Get-Command pipx -ErrorAction SilentlyContinue) { pipx install graphifyy *> $null }
+  elseif (Get-Command python -ErrorAction SilentlyContinue) { python -m pip install -q --user graphifyy *> $null }
+  else { Write-Host "Python is missing, so Graphify was skipped" }
+}
+if (Get-Command graphify -ErrorAction SilentlyContinue) {
+  graphify install --platform windows *> $null
+  if ($LASTEXITCODE -eq 0) { Write-Host "Installed skill graphify" }
+} else { Write-Host "Graphify is not on PATH yet (open a new terminal and run this again)" }
+
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames, Watch (/watch a video),
+#    Ponytail (laziest working solution) and Agent Skills (spec, plan, build, test, review, ship)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin *> $null
 claude plugin marketplace add referodesign/refero_skill --scope user *> $null
 claude plugin marketplace add heygen-com/hyperframes --scope user *> $null
 claude plugin marketplace add bradautomates/claude-video --scope user *> $null
+claude plugin marketplace add DietrichGebert/ponytail --scope user *> $null
+claude plugin marketplace add addyosmani/agent-skills --scope user *> $null
 claude plugin marketplace update impeccable *> $null
 claude plugin marketplace update refero *> $null
 claude plugin marketplace update hyperframes *> $null
 claude plugin marketplace update claude-video *> $null
-foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes", "watch@claude-video")) {
+claude plugin marketplace update ponytail *> $null
+claude plugin marketplace update addy-agent-skills *> $null
+foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes", "watch@claude-video", "ponytail@ponytail", "agent-skills@addy-agent-skills")) {
   claude plugin install $p --scope user *> $null
   if ($LASTEXITCODE -eq 0) { Write-Host "Installed plugin $p" }
   else { Write-Host "Could not install plugin $p (open Claude Code and run: /plugin install $p)" }

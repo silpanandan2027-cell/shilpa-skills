@@ -4,7 +4,9 @@
     "impeccable@impeccable": true,
     "refero@refero": true,
     "hyperframes@hyperframes": true,
-    "watch@claude-video": true
+    "watch@claude-video": true,
+    "ponytail@ponytail": true,
+    "agent-skills@addy-agent-skills": true
   },
   "extraKnownMarketplaces": {
     "impeccable": {
@@ -33,6 +35,18 @@
       "source": {
         "source": "github",
         "repo": "bradautomates/claude-video"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "addy-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "addyosmani/agent-skills"
       }
     }
   }
