@@ -1,145 +1,115 @@
 {
  "output": "exports/reel-01-black-red-kurta.mp4",
+ "sticker": {
+  "file": "shots/flower_sticker.png",
+  "w": 190,
+  "x": 801,
+  "y": 1700
+ },
  "segments": [
   {
-   "image": "tryon.png",
-   "seconds": 3.3,
-   "shade": true,
+   "image": "shots/intro.png",
+   "seconds": 3.4,
    "motion": {
     "zoom": [
      1.0,
-     1.07
+     1.05
     ],
     "fx": [
-     0.5,
-     0.5
-    ],
-    "fy": [
-     0.2,
-     0.25
-    ]
-   },
-   "text": [
-    {
-     "text": "Flipkart Find",
-     "font": "GreatVibes-Regular.ttf",
-     "size": 120,
-     "y": 150,
-     "color": [
-      255,
-      120,
-      170
-     ]
-    },
-    {
-     "text": "Embroidered Kurta Set",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 54,
-     "y": 300
-    }
-   ]
-  },
-  {
-   "image": "product/closeup.jpg",
-   "seconds": 2.8,
-   "shade": true,
-   "motion": {
-    "zoom": [
-     1.05,
-     1.18
-    ],
-    "fx": [
-     0.5,
-     0.5
-    ],
-    "fy": [
-     0.15,
+     0.45,
      0.45
+    ],
+    "fy": [
+     0.6,
+     0.6
     ]
-   },
-   "text": [
-    {
-     "text": "Red thread embroidery",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 60,
-     "y": 1560
-    },
-    {
-     "text": "on the neckline & cuffs",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 44,
-     "y": 1650,
-     "color": [
-      235,
-      235,
-      235
-     ]
-    }
-   ]
+   }
   },
   {
-   "image": "product/full.jpg",
+   "image": "shots/pose1_clean.png",
    "seconds": 3.0,
-   "shade": true,
+   "fade": 0.3,
+   "handheld": true,
    "motion": {
     "zoom": [
      1.0,
-     1.06
+     1.04
     ],
     "fx": [
      0.5,
      0.5
     ],
     "fy": [
-     0.3,
-     0.35
+     0.4,
+     0.4
     ]
-   },
-   "text": [
-    {
-     "text": "Only ₹799",
-     "font": "Poppins-ExtraBold.ttf",
-     "size": 120,
-     "y": 1400
-    },
-    {
-     "text": "MRP ₹1,999",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 48,
-     "y": 1560,
-     "color": [
-      225,
-      225,
-      225
-     ],
-     "strike": true
-    },
-    {
-     "text": "60% OFF",
-     "font": "Poppins-ExtraBold.ttf",
-     "size": 52,
-     "y": 1680,
-     "color": [
-      20,
-      20,
-      20
-     ],
-     "pill": [
-      255,
-      214,
-      90,
-      255
-     ]
-    }
-   ]
+   }
   },
   {
-   "image": "tryon.png",
-   "seconds": 3.8,
-   "shade": true,
+   "image": "shots/pose2_clean.png",
+   "seconds": 2.3,
+   "fade": 0.15,
    "motion": {
     "zoom": [
-     1.12,
+     1.0,
+     1.04
+    ],
+    "fx": [
+     0.83,
+     0.83
+    ],
+    "fy": [
+     0.95,
+     0.95
+    ]
+   }
+  },
+  {
+   "image": "shots/hand.png",
+   "seconds": 2.1,
+   "fade": 0.15,
+   "motion": {
+    "zoom": [
+     1.55,
+     1.66
+    ],
+    "fx": [
+     0.55,
+     0.6
+    ],
+    "fy": [
+     0.92,
+     1.0
+    ]
+   }
+  },
+  {
+   "image": "shots/hem.png",
+   "seconds": 2.1,
+   "fade": 0.15,
+   "motion": {
+    "zoom": [
+     1.0,
+     1.08
+    ],
+    "fx": [
+     0.5,
+     0.5
+    ],
+    "fy": [
+     0.0,
+     0.2
+    ]
+   }
+  },
+  {
+   "image": "shots/pose1_clean.png",
+   "seconds": 2.6,
+   "fade": 0.3,
+   "handheld": true,
+   "motion": {
+    "zoom": [
+     1.07,
      1.0
     ],
     "fx": [
@@ -147,57 +117,130 @@
      0.5
     ],
     "fy": [
-     0.3,
-     0.2
+     0.35,
+     0.4
     ]
-   },
-   "text": [
-    {
-     "text": "Follow & comment",
-     "font": "GreatVibes-Regular.ttf",
-     "size": 104,
-     "y": 1390,
-     "color": [
-      255,
-      120,
-      170
-     ]
-    },
-    {
-     "text": "LINK",
-     "font": "Poppins-ExtraBold.ttf",
-     "size": 64,
-     "y": 1540,
-     "color": [
-      255,
-      255,
-      255
-     ],
-     "pill": [
-      230,
-      60,
-      120,
-      255
-     ]
-    },
-    {
-     "text": "Sizes S to 3XL · Office · Festive",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 40,
-     "y": 1680
-    },
-    {
-     "text": "#ad · AI model, real product",
-     "font": "Poppins-SemiBold.ttf",
-     "size": 30,
-     "y": 1770,
-     "color": [
-      210,
-      210,
-      210
-     ]
-    }
-   ]
+   }
+  }
+ ],
+ "texts": [
+  {
+   "text": "Flipkart",
+   "style": "brand",
+   "y": 230,
+   "start": 0.2,
+   "end": 3.3,
+   "reveal": "pop"
+  },
+  {
+   "text": "Kurta with Palazzo",
+   "style": "script",
+   "y": 370,
+   "start": 0.6,
+   "end": 3.3,
+   "reveal": "type"
+  },
+  {
+   "text": "Follow & comment “link”",
+   "style": "script",
+   "size": 88,
+   "y": 1560,
+   "start": 7.6,
+   "end": 13.0,
+   "reveal": "type"
+  },
+  {
+   "text": "Only ₹799",
+   "style": "price",
+   "y": 250,
+   "start": 9.65,
+   "end": 11.4,
+   "reveal": "pop"
+  },
+  {
+   "text": "MRP ₹1,999  ·  60% OFF",
+   "style": "small",
+   "size": 40,
+   "y": 360,
+   "start": 9.8,
+   "end": 11.4,
+   "reveal": "fade"
+  },
+  {
+   "text": "#ad · AI model, real product",
+   "style": "small",
+   "size": 28,
+   "y": 1870,
+   "start": 0.0,
+   "end": 13.0,
+   "reveal": "fade",
+   "dx": -120
+  }
+ ],
+ "sparkles": [
+  {
+   "x": 190,
+   "y": 980,
+   "size": 51,
+   "start": 0.3,
+   "end": 3.2,
+   "period": 0.8
+  },
+  {
+   "x": 330,
+   "y": 1180,
+   "size": 39,
+   "start": 0.6,
+   "end": 3.2,
+   "period": 1.0
+  },
+  {
+   "x": 120,
+   "y": 1320,
+   "size": 45,
+   "start": 0.9,
+   "end": 3.2,
+   "period": 0.7
+  },
+  {
+   "x": 760,
+   "y": 980,
+   "size": 45,
+   "start": 0.4,
+   "end": 3.2,
+   "period": 0.9
+  },
+  {
+   "x": 880,
+   "y": 1150,
+   "size": 36,
+   "start": 1.1,
+   "end": 3.2,
+   "period": 0.75
+  },
+  {
+   "x": 420,
+   "y": 820,
+   "size": 30,
+   "start": 1.5,
+   "end": 3.2,
+   "period": 0.6
+  },
+  {
+   "x": 560,
+   "y": 640,
+   "size": 33,
+   "start": 7.75,
+   "end": 9.6,
+   "period": 0.8
+  },
+  {
+   "x": 300,
+   "y": 900,
+   "size": 27,
+   "start": 8.0,
+   "end": 9.6,
+   "period": 0.7
   }
  ]
 }
