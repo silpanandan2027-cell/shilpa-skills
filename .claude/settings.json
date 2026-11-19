@@ -27,6 +27,12 @@
         "source": "github",
         "repo": "heygen-com/hyperframes"
       }
+    },
+    "claude-video": {
+      "source": {
+        "source": "github",
+        "repo": "bradautomates/claude-video"
+      }
     }
   }
 }

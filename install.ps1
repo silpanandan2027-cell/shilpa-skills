@@ -60,14 +60,16 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   exit 0
 }
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server) and HyperFrames
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin *> $null
 claude plugin marketplace add referodesign/refero_skill --scope user *> $null
 claude plugin marketplace add heygen-com/hyperframes --scope user *> $null
+claude plugin marketplace add bradautomates/claude-video --scope user *> $null
 claude plugin marketplace update impeccable *> $null
 claude plugin marketplace update refero *> $null
 claude plugin marketplace update hyperframes *> $null
-foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes")) {
+claude plugin marketplace update claude-video *> $null
+foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes", "watch@claude-video")) {
   claude plugin install $p --scope user *> $null
   if ($LASTEXITCODE -eq 0) { Write-Host "Installed plugin $p" }
   else { Write-Host "Could not install plugin $p (open Claude Code and run: /plugin install $p)" }

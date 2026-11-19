@@ -58,14 +58,16 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 0
 fi
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server) and HyperFrames
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin >/dev/null 2>&1 || true
 claude plugin marketplace add referodesign/refero_skill --scope user >/dev/null 2>&1 || true
 claude plugin marketplace add heygen-com/hyperframes --scope user >/dev/null 2>&1 || true
+claude plugin marketplace add bradautomates/claude-video --scope user >/dev/null 2>&1 || true
 claude plugin marketplace update impeccable >/dev/null 2>&1 || true
 claude plugin marketplace update refero >/dev/null 2>&1 || true
 claude plugin marketplace update hyperframes >/dev/null 2>&1 || true
-for p in impeccable@impeccable refero@refero hyperframes@hyperframes; do
+claude plugin marketplace update claude-video >/dev/null 2>&1 || true
+for p in impeccable@impeccable refero@refero hyperframes@hyperframes watch@claude-video; do
   if claude plugin install "$p" --scope user >/dev/null 2>&1; then echo "Installed plugin $p"
   else echo "Could not install plugin $p (open Claude Code and run: /plugin install $p)"; fi
   claude plugin enable "$p" --scope user >/dev/null 2>&1 || true

@@ -8,6 +8,7 @@ Skills for [Claude Code](https://claude.com/claude-code): three that edit your v
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
 | `/video-editor` | Claude as your video editor: download (yt-dlp), cut and join (FFmpeg), subtitles (Whisper), and animated videos in HTML (HyperFrames) or React (Remotion). |
 | `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
+| `/watch` | Claude watches a video for you: give it a YouTube link or a video file and ask what happens in it. From [bradautomates/claude-video](https://github.com/bradautomates/claude-video), installed as a plugin (in Claude Code it shows as `/watch:watch`). |
 
 ## Video tools
 
