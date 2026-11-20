@@ -52,22 +52,34 @@ done
 command -v npx >/dev/null 2>&1 && npx -y skills add remotion-dev/skills -g -y -a claude-code -s '*' --copy >/dev/null 2>&1 \
   && echo "Installed Remotion skills" || true
 
+# Claude Code itself
+if ! command -v claude >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+  npm install -g --silent @anthropic-ai/claude-code >/dev/null 2>&1 \
+    || sudo npm install -g --silent @anthropic-ai/claude-code >/dev/null 2>&1 || true
+  command -v claude >/dev/null 2>&1 && echo "Installed Claude Code"
+fi
 if ! command -v claude >/dev/null 2>&1; then
   echo "Claude Code (claude) is not on PATH, so plugins and MCP servers were skipped."
   echo "Install Claude Code, then run this script again."
   exit 0
 fi
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames, Watch (/watch a video),
+#    Frontend Design (Anthropic's design-taste skill) and 21st.dev (component MCP + 21st-ui skill)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin >/dev/null 2>&1 || true
 claude plugin marketplace add referodesign/refero_skill --scope user >/dev/null 2>&1 || true
 claude plugin marketplace add heygen-com/hyperframes --scope user >/dev/null 2>&1 || true
 claude plugin marketplace add bradautomates/claude-video --scope user >/dev/null 2>&1 || true
+claude plugin marketplace add anthropics/claude-plugins-official --scope user >/dev/null 2>&1 || true
+claude plugin marketplace add 21st-dev/magic-mcp --scope user >/dev/null 2>&1 || true
 claude plugin marketplace update impeccable >/dev/null 2>&1 || true
 claude plugin marketplace update refero >/dev/null 2>&1 || true
 claude plugin marketplace update hyperframes >/dev/null 2>&1 || true
 claude plugin marketplace update claude-video >/dev/null 2>&1 || true
-for p in impeccable@impeccable refero@refero hyperframes@hyperframes watch@claude-video; do
+claude plugin marketplace update claude-plugins-official >/dev/null 2>&1 || true
+claude plugin marketplace update 21st-dev >/dev/null 2>&1 || true
+for p in impeccable@impeccable refero@refero hyperframes@hyperframes watch@claude-video \
+         frontend-design@claude-plugins-official 21st@21st-dev; do
   if claude plugin install "$p" --scope user >/dev/null 2>&1; then echo "Installed plugin $p"
   else echo "Could not install plugin $p (open Claude Code and run: /plugin install $p)"; fi
   claude plugin enable "$p" --scope user >/dev/null 2>&1 || true
@@ -84,17 +96,36 @@ add_mcp chrome-devtools chrome-devtools -- npx -y chrome-devtools-mcp@latest
 add_mcp context7 --transport http context7 https://mcp.context7.com/mcp
 add_mcp firecrawl --transport http firecrawl https://mcp.firecrawl.dev/v2/mcp-oauth
 add_mcp shadcn shadcn -- npx -y shadcn@latest mcp
+# 21st.dev: its plugin's own server entry is missing "type": "http" and does not load, so add it here.
+# The key comes from API_KEY_21ST (saved below in ~/.claude/settings.json).
+add_mcp 21st --transport http 21st https://21st.dev/api/mcp --header 'x-api-key: ${API_KEY_21ST}'
 
-# 5. Always use the web-design stack for website work
+# 21st.dev needs a free key (https://21st.dev/mcp). Saved in ~/.claude/settings.json so every chat has it.
+cfg="$HOME/.claude/settings.json"
+if [ -z "$API_KEY_21ST" ] && ! grep -q '"API_KEY_21ST"' "$cfg" 2>/dev/null && [ -t 0 ]; then
+  printf "Paste your 21st.dev key from https://21st.dev/mcp (or press Enter to skip): "
+  read -r key21 || key21=""
+  if [ -n "$key21" ] && command -v node >/dev/null 2>&1; then
+    KEY21="$key21" CFG="$cfg" node -e '
+      const fs = require("fs"), f = process.env.CFG;
+      const s = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : {};
+      s.env = Object.assign({}, s.env, { API_KEY_21ST: process.env.KEY21 });
+      fs.writeFileSync(f, JSON.stringify(s, null, 2) + "\n");' && echo "Saved your 21st.dev key"
+  fi
+fi
+
+# 5. Always use the web-design stack for website work (the note is refreshed on every run)
 md="$HOME/.claude/CLAUDE.md"
 touch "$md"
+sed '/<!-- shilpa-skills:web-design -->/,/<!-- \/shilpa-skills:web-design -->/d' "$md" | cat -s > "$md.tmp" && mv "$md.tmp" "$md"
 if ! grep -q "shilpa-skills:web-design" "$md"; then
   cat >> "$md" <<'EOF'
 
 <!-- shilpa-skills:web-design -->
 For any website, landing page, web app, UI or HTML page work, always follow the `web-design` skill:
-research with Refero and Firecrawl, use a DESIGN.md, build with React Bits, GSAP and Anime.js,
-check docs with Context7, review with Impeccable, and test in Chrome DevTools before calling it done.
+research with Refero and Firecrawl, follow the frontend-design skill, use a DESIGN.md (type scale, 8px grid,
+colour tokens), build with 21st.dev and React Bits components, animate with Motion (Framer Motion), GSAP and Anime.js,
+check docs with Context7, review with Impeccable, and test in Chrome DevTools (with a Lighthouse audit) before calling it done.
 <!-- /shilpa-skills:web-design -->
 EOF
   echo "Turned on web-design for every project in $md"
@@ -111,3 +142,6 @@ EOF
 fi
 
 echo "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."
+[ -z "$API_KEY_21ST" ] && ! grep -q '"API_KEY_21ST"' "$cfg" 2>/dev/null \
+  && echo "For 21st.dev components, get a free key at https://21st.dev/mcp and run this again to save it."
+exit 0

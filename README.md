@@ -7,7 +7,7 @@ Skills for [Claude Code](https://claude.com/claude-code): three that edit your v
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
 | `/video-editor` | Claude as your video editor: download (yt-dlp), cut and join (FFmpeg), subtitles (Whisper), and animated videos in HTML (HyperFrames) or React (Remotion). |
-| `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
+| `/web-design` | Used automatically for any website or UI work. Runs the 12 tools below every time. |
 | `/watch` | Claude watches a video for you: give it a YouTube link or a video file and ask what happens in it. From [bradautomates/claude-video](https://github.com/bradautomates/claude-video), installed as a plugin (in Claude Code it shows as `/watch:watch`). |
 
 ## Video tools
@@ -39,14 +39,17 @@ The installer switches all of these on for every project:
 | [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Claude tests and fixes its own site in real Chrome | MCP server |
 | [Firecrawl](https://firecrawl.dev) | copy any website's vibe | MCP server |
 | [Context7](https://context7.com) | stops Claude writing outdated code | MCP server |
+| [Frontend Design](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/frontend-design) | Anthropic's skill that teaches Claude design taste: a clear direction, type, colour, layout | plugin |
+| [21st.dev](https://21st.dev) | 10,000+ ready React/Tailwind blocks: heroes, pricing, testimonials, navbars, footers | plugin with MCP server |
+| [Motion](https://motion.dev) (Framer Motion) | scroll reveals, staggered fades, hover and page transitions in React | npm, added per project |
 
 An example page built with this stack is in [`examples/landing-page`](examples/landing-page).
 
-After installing, open Claude Code and run `/mcp` to sign in to **Refero** (needs a paid Refero plan) and **Firecrawl** (free account). Context7 works without an account for light use; for more, get a free key at context7.com. The rest work without an account. Chrome DevTools needs Chrome installed.
+After installing, open Claude Code and run `/mcp` to sign in to **Refero** (needs a paid Refero plan) and **Firecrawl** (free account). Context7 works without an account for light use; for more, get a free key at context7.com. **21st.dev** needs a free key from [21st.dev/mcp](https://21st.dev/mcp) (the free plan gives 2 component installs a day): the installer asks for it and saves it in `~/.claude/settings.json`, so every chat has it. The rest work without an account. Chrome DevTools needs Chrome installed.
 
 ## Install
 
-You need Claude Code. The skills help install ffmpeg and Python the first time you use them.
+You need Node.js 18 or newer (the installer adds Claude Code itself if it is missing). The skills help install ffmpeg and Python the first time you use them.
 
 **Windows (PowerShell)**
 ```powershell
@@ -64,6 +67,21 @@ cd shilpa-skills && ./install.sh
 Then restart Claude Code. Type `/` and the skills appear. The installer also adds the plugins and MCP servers above for every project, and adds a short note to `~/.claude/CLAUDE.md` so Claude always uses the web design stack.
 
 > Easier: open Claude Code and say **"Install the skills from github.com/silpanandan2027-cell/shilpa-skills"**.
+
+## Starter prompt for a website
+
+Once installed, start a site with something like this (the `web-design` skill fills in the rest):
+
+```
+Build a modern landing page for [YOUR PRODUCT OR SERVICE].
+- Next.js with the App Router, Tailwind CSS
+- Motion for animation: scroll reveals, hover states, page transitions
+- Pull the hero, features and pricing sections from 21st.dev and match them to our DESIGN.md
+- A sticky navbar, a hero with a headline and a call to action, 3 feature cards,
+  social proof, pricing, FAQ and a footer
+- Mobile-first and fully responsive, Lighthouse 90+ on performance
+Set up the project first, then build section by section and show me each one before moving on.
+```
 
 ## Full guide
 

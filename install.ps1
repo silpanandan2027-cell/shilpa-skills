@@ -54,22 +54,33 @@ foreach ($t in @("ffmpeg", "yt-dlp", "whisper-cli", "hyperframes", "remotion")) 
   else { Write-Host "Video tool missing: $t (open a new terminal; if still missing, run this again)" }
 }
 
+# Claude Code itself
+if (-not (Get-Command claude -ErrorAction SilentlyContinue) -and (Get-Command npm -ErrorAction SilentlyContinue)) {
+  npm install -g --silent @anthropic-ai/claude-code *> $null
+  if (Get-Command claude -ErrorAction SilentlyContinue) { Write-Host "Installed Claude Code" }
+}
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   Write-Host "Claude Code (claude) is not on PATH, so plugins and MCP servers were skipped."
   Write-Host "Install Claude Code, then run this script again."
   exit 0
 }
 
-# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames and Watch (/watch a video)
+# 3. Plugins: Impeccable, Refero (brings its own MCP server), HyperFrames, Watch (/watch a video),
+#    Frontend Design (Anthropic's design-taste skill) and 21st.dev (component MCP + 21st-ui skill)
 claude plugin marketplace add pbakaus/impeccable --scope user --sparse .claude-plugin plugin *> $null
 claude plugin marketplace add referodesign/refero_skill --scope user *> $null
 claude plugin marketplace add heygen-com/hyperframes --scope user *> $null
 claude plugin marketplace add bradautomates/claude-video --scope user *> $null
+claude plugin marketplace add anthropics/claude-plugins-official --scope user *> $null
+claude plugin marketplace add 21st-dev/magic-mcp --scope user *> $null
 claude plugin marketplace update impeccable *> $null
 claude plugin marketplace update refero *> $null
 claude plugin marketplace update hyperframes *> $null
 claude plugin marketplace update claude-video *> $null
-foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes", "watch@claude-video")) {
+claude plugin marketplace update claude-plugins-official *> $null
+claude plugin marketplace update 21st-dev *> $null
+foreach ($p in @("impeccable@impeccable", "refero@refero", "hyperframes@hyperframes", "watch@claude-video",
+                 "frontend-design@claude-plugins-official", "21st@21st-dev")) {
   claude plugin install $p --scope user *> $null
   if ($LASTEXITCODE -eq 0) { Write-Host "Installed plugin $p" }
   else { Write-Host "Could not install plugin $p (open Claude Code and run: /plugin install $p)" }
@@ -87,17 +98,41 @@ Add-Mcp "chrome-devtools" @("chrome-devtools", '--', "cmd", "/c", "npx", "-y", "
 Add-Mcp "context7" @("--transport", "http", "context7", "https://mcp.context7.com/mcp")
 Add-Mcp "firecrawl" @("--transport", "http", "firecrawl", "https://mcp.firecrawl.dev/v2/mcp-oauth")
 Add-Mcp "shadcn" @("shadcn", '--', "cmd", "/c", "npx", "-y", "shadcn@latest", "mcp")
+# 21st.dev: its plugin's own server entry is missing "type": "http" and does not load, so add it here.
+# The key comes from API_KEY_21ST (saved below in ~/.claude/settings.json).
+Add-Mcp "21st" @("--transport", "http", "21st", "https://21st.dev/api/mcp", "--header", 'x-api-key: ${API_KEY_21ST}')
 
-# 5. Always use the web-design stack for website work
+# 21st.dev needs a free key (https://21st.dev/mcp). Saved in ~/.claude/settings.json so every chat has it.
+$cfg = Join-Path $HOME ".claude\settings.json"
+$hasKey = $env:API_KEY_21ST -or ((Test-Path $cfg) -and (Select-String -Path $cfg -Pattern '"API_KEY_21ST"' -Quiet))
+if (-not $hasKey -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
+  $key21 = Read-Host "Paste your 21st.dev key from https://21st.dev/mcp (or press Enter to skip)"
+  if ($key21) {
+    $settings = if (Test-Path $cfg) { Get-Content $cfg -Raw | ConvertFrom-Json } else { [pscustomobject]@{} }
+    if (-not $settings.env) { $settings | Add-Member -NotePropertyName env -NotePropertyValue ([pscustomobject]@{}) -Force }
+    $settings.env | Add-Member -NotePropertyName API_KEY_21ST -NotePropertyValue $key21 -Force
+    $settings | ConvertTo-Json -Depth 20 | Set-Content $cfg -Encoding UTF8
+    $hasKey = $true
+    Write-Host "Saved your 21st.dev key"
+  }
+}
+
+# 5. Always use the web-design stack for website work (the note is refreshed on every run)
 $md = Join-Path $HOME ".claude\CLAUDE.md"
 if (-not (Test-Path $md)) { New-Item -ItemType File -Force $md | Out-Null }
+$text = Get-Content $md -Raw
+if ($text) {
+  $text = [regex]::Replace($text, '(\r?\n)*<!-- shilpa-skills:web-design -->[\s\S]*?<!-- /shilpa-skills:web-design -->', '')
+  Set-Content -Path $md -Value $text.TrimEnd() -Encoding UTF8
+}
 if (-not (Select-String -Path $md -Pattern "shilpa-skills:web-design" -Quiet)) {
   $block = @"
 
 <!-- shilpa-skills:web-design -->
 For any website, landing page, web app, UI or HTML page work, always follow the ``web-design`` skill:
-research with Refero and Firecrawl, use a DESIGN.md, build with React Bits, GSAP and Anime.js,
-check docs with Context7, review with Impeccable, and test in Chrome DevTools before calling it done.
+research with Refero and Firecrawl, follow the frontend-design skill, use a DESIGN.md (type scale, 8px grid,
+colour tokens), build with 21st.dev and React Bits components, animate with Motion (Framer Motion), GSAP and Anime.js,
+check docs with Context7, review with Impeccable, and test in Chrome DevTools (with a Lighthouse audit) before calling it done.
 <!-- /shilpa-skills:web-design -->
 "@
   Add-Content -Path $md -Value $block -Encoding UTF8
@@ -116,3 +151,4 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
 }
 
 Write-Host "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."
+if (-not $hasKey) { Write-Host "For 21st.dev components, get a free key at https://21st.dev/mcp and run this again to save it." }
