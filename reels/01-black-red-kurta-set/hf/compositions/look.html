@@ -1,0 +1,75 @@
+<template>
+  <style>
+    @font-face { font-family: "Great Vibes"; src: url("assets/fonts/GreatVibes-Regular.ttf") format("truetype"); font-display: block; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f4ece6; }
+    #look-cam, #look-punch, #look-push, #look-rig, #look-sway, #look-breath { position: absolute; inset: 0; }
+    #look-cam { inset: -3%; }
+    .look-plate, .look-girl { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+    #look-place { position: absolute; inset: 0; transform-origin: 50% 100%; transform: translateY(-190px) scale(0.86); }
+    #look-shadow { position: absolute; left: 30%; right: 30%; bottom: -40px; height: 170px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(40, 22, 14, 0.42), rgba(40, 22, 14, 0) 70%); }
+    #look-sway { transform-origin: 50% 96%; }
+    #look-breath { transform-origin: 50% 96%; }
+    #look-title {
+      position: absolute; left: 0; right: 0; top: 900px; text-align: center;
+      font-family: "Great Vibes", cursive; font-size: 340px; line-height: 1; color: #d6246e;
+      -webkit-text-stroke: 6px #ffffff; paint-order: stroke fill;
+      text-shadow: 0 0 60px rgba(255, 255, 255, 0.9), 0 0 120px rgba(255, 140, 190, 0.6);
+      white-space: nowrap;
+    }
+    #look-flash { position: absolute; inset: 0; background: #fff8fb; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="look" data-width="2160" data-height="3840" data-layout-allow-overflow>
+    <div id="look-cam">
+      <div id="look-punch">
+        <div id="look-push">
+          <img id="look-plate" class="look-plate" src="assets/img/room1.jpg" alt="" />
+          <div id="look-rig" data-layout-allow-occlusion>
+            <div id="look-place">
+            <div id="look-shadow"></div>
+            <div id="look-sway">
+              <div id="look-breath">
+              <img id="look-girl-pose1" class="look-girl" src="assets/cut/pose1-room1.webp" alt="" style="opacity:1" />
+              <img id="look-girl-pose2" class="look-girl" src="assets/cut/pose2-room1.webp" alt="" style="opacity:0" />
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="look-flash"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.to({}, { duration: 5.0 }, 0);
+    tl.set("#look-flash", { opacity: 0 }, 0);
+    // depth parallax: the room pushes in slowly while she drifts the other way, so she separates from it
+    tl.fromTo("#look-push", { scale: 1.03, x: 0 }, { scale: 1.1, x: -26, duration: 5.0, ease: "power1.inOut" }, 0);
+    tl.fromTo("#look-rig", { x: -18, y: 6 }, { x: 34, y: -8, duration: 5.0, ease: "power1.inOut" }, 0);
+    // idle acting: weight shifting hip to hip, and breathing
+    tl.fromTo("#look-sway", { rotation: -0.9 }, { rotation: 0.9, duration: 1.3, ease: "sine.inOut", repeat: 3, yoyo: true }, 0);
+    tl.fromTo("#look-breath", { scaleY: 1, scaleX: 1 }, { scaleY: 1.007, scaleX: 0.998, duration: 0.85, ease: "sine.inOut", repeat: 4, yoyo: true }, 0);
+    // handheld phone camera
+    tl.fromTo("#look-cam", { x: -12 }, { x: 12, duration: 1.9, ease: "sine.inOut", repeat: 2, yoyo: true }, 0);
+    tl.fromTo("#look-cam", { y: -9, rotation: -0.25 }, { y: 9, rotation: 0.25, duration: 2.6, ease: "sine.inOut", repeat: 1, yoyo: true }, 0);
+    // title behind her: blurs in as one line, then holds still
+    // no title in this scene: the outfit is the subject
+    // she arrives slightly large and settles (match from the previous scene's push)
+    tl.fromTo("#look-punch", { scale: 1.06 }, { scale: 1, duration: 0.6, ease: "expo.out" }, 0);
+
+    // pose switch on the beat: white flash, swap at its peak, small punch-in that settles
+    tl.fromTo("#look-flash", { opacity: 0 }, { opacity: 0.85, duration: 0.07, ease: "power2.in" }, 1.53);
+    tl.fromTo("#look-flash", { opacity: 0.85 }, { opacity: 0, duration: 0.22, ease: "power2.out", immediateRender: false }, 1.60);
+    tl.set("#look-girl-pose2", { opacity: 1 }, 1.60);
+    tl.set("#look-girl-pose1", { opacity: 0 }, 1.60);
+    tl.fromTo("#look-punch", { scale: 1.045 }, { scale: 1, duration: 0.45, ease: "expo.out", immediateRender: false }, 1.60);
+    // pose switch on the beat: white flash, swap at its peak, small punch-in that settles
+    tl.fromTo("#look-flash", { opacity: 0 }, { opacity: 0.85, duration: 0.07, ease: "power2.in" }, 3.18);
+    tl.fromTo("#look-flash", { opacity: 0.85 }, { opacity: 0, duration: 0.22, ease: "power2.out", immediateRender: false }, 3.25);
+    tl.set("#look-girl-pose1", { opacity: 1 }, 3.25);
+    tl.set("#look-girl-pose2", { opacity: 0 }, 3.25);
+    tl.fromTo("#look-punch", { scale: 1.045 }, { scale: 1, duration: 0.45, ease: "expo.out", immediateRender: false }, 3.25);
+    window.__timelines["look"] = tl;
+  </script>
+</template>

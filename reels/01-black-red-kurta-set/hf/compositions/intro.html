@@ -1,0 +1,78 @@
+<template>
+  <style>
+    @font-face { font-family: "Great Vibes"; src: url("assets/fonts/GreatVibes-Regular.ttf") format("truetype"); font-display: block; }
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f6e9e4; }
+    #intro-bg-wrap { position: absolute; inset: -4%; }
+    #intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(26px) saturate(1.05); }
+    #intro-blush { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 55% at 50% 58%, rgba(255, 236, 242, 0.15), rgba(255, 214, 228, 0.55)); }
+    #intro-stage { position: absolute; inset: 0; perspective: 2600px; }
+    #intro-float { position: absolute; left: 230px; top: 1080px; width: 1700px; height: 3020px; transform-style: preserve-3d; }
+    #intro-kurta { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 60px 70px rgba(80, 20, 40, 0.35)); }
+    #intro-shine { position: absolute; inset: 0; overflow: hidden; mix-blend-mode: soft-light;
+      -webkit-mask: url(assets/cut/kurta.webp) center / contain no-repeat; mask: url(assets/cut/kurta.webp) center / contain no-repeat; }
+    #intro-shine-band { position: absolute; top: -20%; left: -60%; width: 45%; height: 140%;
+      background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.95), transparent); transform: rotate(14deg); }
+    #intro-brand {
+      position: absolute; left: 0; right: 0; top: 660px; text-align: center;
+      font-family: "Poppins", sans-serif; font-weight: 800; font-size: 220px; line-height: 1; color: #d1105f;
+      -webkit-text-stroke: 14px #ffffff; paint-order: stroke fill; letter-spacing: -2px;
+      text-shadow: 0 0 50px rgba(255, 255, 255, 0.9);
+    }
+    #intro-script {
+      position: absolute; left: 0; right: 0; top: 920px; text-align: center; white-space: nowrap;
+      font-family: "Great Vibes", cursive; font-size: 200px; line-height: 1.1; color: #d6246e;
+      -webkit-text-stroke: 5px #ffffff; paint-order: stroke fill;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.95), 0 0 90px rgba(255, 140, 190, 0.6);
+    }
+    #intro-script span { display: inline-block; }
+    .intro-star { position: absolute; width: 150px; height: 150px; margin: -75px 0 0 -75px; }
+    .intro-star svg { width: 100%; height: 100%; filter: drop-shadow(0 0 14px #fff) drop-shadow(0 0 30px rgba(255, 190, 220, 0.9)); }
+    #intro-flash { position: absolute; inset: 0; background: #fff8fb; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="intro" data-width="2160" data-height="3840" data-layout-allow-overflow>
+    <div id="intro-bg-wrap"><img id="intro-bg" src="assets/img/room2.jpg" alt="" /></div>
+    <div id="intro-blush"></div>
+    <div id="intro-stage">
+      <div id="intro-float">
+        <img id="intro-kurta" src="assets/cut/kurta.webp" alt="Black kurta set with red embroidery" />
+        <div id="intro-shine"><div id="intro-shine-band"></div></div>
+      </div>
+    </div>
+    <div id="intro-brand" class="clip" data-start="0" data-duration="2.8" data-var-text="store">Flipkart</div>
+    <div id="intro-script" class="clip" data-start="0.35" data-duration="2.45" data-layout-allow-overlap>
+      <span>K</span><span>u</span><span>r</span><span>t</span><span>a</span><span>&nbsp;</span><span>w</span><span>i</span><span>t</span><span>h</span><span>&nbsp;</span><span>P</span><span>a</span><span>l</span><span>a</span><span>z</span><span>z</span><span>o</span>
+    </div>
+    <div id="intro-star-1" class="intro-star" style="left: 760px; top: 1500px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="intro-star-2" class="intro-star" style="left: 1500px; top: 1300px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="intro-star-3" class="intro-star" style="left: 1180px; top: 2150px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="intro-star-4" class="intro-star" style="left: 560px; top: 2450px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="intro-star-5" class="intro-star" style="left: 1640px; top: 2600px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="intro-flash"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.to({}, { duration: 2.8 }, 0);
+    // the room drifts behind
+    tl.fromTo("#intro-bg-wrap", { scale: 1.0, x: 20 }, { scale: 1.08, x: -20, duration: 2.8, ease: "power1.inOut" }, 0);
+    // the folded set turns in 3D in a soft light: lands from a slight angle, keeps a gentle turn
+    tl.fromTo("#intro-float", { rotationY: -24, rotationX: 6, y: 120, scale: 0.9, opacity: 0 },
+      { rotationY: 6, rotationX: 0, y: 0, scale: 1, opacity: 1, duration: 1.1, ease: "expo.out" }, 0);
+    tl.fromTo("#intro-float", { rotationY: 6, y: 0 }, { rotationY: -6, y: -30, duration: 1.4, ease: "sine.inOut", immediateRender: false }, 1.1);
+    // one specular sweep across the embroidery
+    tl.fromTo("#intro-shine-band", { xPercent: 0 }, { xPercent: 420, duration: 1.0, ease: "power2.inOut" }, 0.6);
+    // titles: store name pops, the script writes in letter by letter
+    tl.fromTo("#intro-brand", { scale: 0.6, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "back.out(1.6)" }, 0.1);
+    tl.fromTo("#intro-script span", { opacity: 0, y: 30, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.25, ease: "power3.out", stagger: 0.045 }, 0.35);
+    // sparkles twinkle on the embroidery
+    ["#intro-star-1", "#intro-star-2", "#intro-star-3", "#intro-star-4", "#intro-star-5"].forEach((s, i) => {
+      const t0 = 0.5 + i * 0.28;
+      tl.fromTo(s, { scale: 0, rotation: 0, opacity: 0 }, { scale: 1, rotation: 45, opacity: 1, duration: 0.3, ease: "back.out(2)" }, t0);
+      tl.fromTo(s, { scale: 1, opacity: 1 }, { scale: 0, opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, t0 + 0.45);
+    });
+    // exit: the set rushes toward the camera into a soft flash (the next scene arrives large and settles)
+    tl.fromTo("#intro-float", { scale: 1 }, { scale: 1.7, duration: 0.35, ease: "power3.in", immediateRender: false }, 2.45);
+    tl.fromTo(["#intro-brand", "#intro-script"], { opacity: 1 }, { opacity: 0, duration: 0.2, ease: "power2.in", immediateRender: false }, 2.45);
+    tl.fromTo("#intro-flash", { opacity: 0 }, { opacity: 0.9, duration: 0.25, ease: "power2.in" }, 2.55);
+    window.__timelines["intro"] = tl;
+  </script>
+</template>

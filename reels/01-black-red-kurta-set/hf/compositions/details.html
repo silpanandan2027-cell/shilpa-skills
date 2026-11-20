@@ -1,0 +1,58 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #1a1012; }
+    .det-shot { position: absolute; inset: 0; overflow: hidden; }
+    .det-move { position: absolute; inset: 0; }
+    .det-move img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+    #det-sweep { position: absolute; inset: 0; overflow: hidden; mix-blend-mode: soft-light; pointer-events: none; }
+    #det-sweep-band { position: absolute; top: -30%; left: -70%; width: 50%; height: 160%;
+      background: linear-gradient(100deg, transparent, rgba(255, 250, 240, 0.95) 50%, transparent); transform: rotate(18deg); }
+    .det-star { position: absolute; width: 130px; height: 130px; margin: -65px 0 0 -65px; }
+    .det-star svg { width: 100%; height: 100%; filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 26px rgba(255, 190, 220, 0.9)); }
+    #det-price {
+      position: absolute; left: 0; right: 0; top: 640px; text-align: center;
+      font-family: "Poppins", sans-serif; font-weight: 800; font-size: 230px; line-height: 1; color: #ffffff;
+      -webkit-text-stroke: 14px #ec187a; paint-order: stroke fill; text-shadow: 0 0 60px rgba(236, 24, 122, 0.6);
+    }
+    #det-mrp { position: absolute; left: 0; right: 0; top: 940px; text-align: center; }
+    #det-mrp-pill { display: inline-block; padding: 26px 64px; border-radius: 999px; background: rgba(255, 255, 255, 0.92);
+      font-family: "Poppins", sans-serif; font-weight: 700; font-size: 76px; color: #2a1218; }
+    #det-mrp-pill s { color: #8a6d74; font-weight: 600; }
+    #det-mrp-pill b { color: #ec187a; }
+  </style>
+  <div id="root" data-composition-id="details" data-width="2160" data-height="3840" data-layout-allow-overflow>
+    <div id="det-hand" class="det-shot clip" data-start="0" data-duration="2.1">
+      <div id="det-hand-move" class="det-move"><img src="assets/img/hand-4k.jpg" alt="Hand on the red embroidery" /></div>
+      <div id="det-sweep"><div id="det-sweep-band"></div></div>
+    </div>
+    <div id="det-hem" class="det-shot clip" data-start="2.0" data-duration="2.2">
+      <div id="det-hem-move" class="det-move"><img src="assets/img/hem-4k.jpg" alt="Kurta hem and palazzo" /></div>
+    </div>
+    <div id="det-star-1" class="det-star" style="left: 1080px; top: 1500px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="det-star-2" class="det-star" style="left: 1560px; top: 2050px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="det-star-3" class="det-star" style="left: 760px; top: 2500px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+    <div id="det-price" class="clip" data-start="2.25" data-duration="1.9">Only ₹799</div>
+    <div id="det-mrp" class="clip" data-start="2.45" data-duration="1.7"><span id="det-mrp-pill"><s>₹1,999</s> &nbsp;·&nbsp; <b>60% OFF</b></span></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.to({}, { duration: 4.2 }, 0);
+    // close-up: her hand on the embroidery, slow push with a light sweep across the threads
+    tl.fromTo("#det-hand-move", { scale: 1.12, y: 40 }, { scale: 1.0, y: 0, duration: 2.1, ease: "power2.out" }, 0);
+    tl.fromTo("#det-sweep-band", { xPercent: 0 }, { xPercent: 460, duration: 1.3, ease: "power2.inOut" }, 0.3);
+    ["#det-star-1", "#det-star-2", "#det-star-3"].forEach((s, i) => {
+      const t0 = 0.35 + i * 0.35;
+      tl.fromTo(s, { scale: 0, rotation: 0, opacity: 0 }, { scale: 1, rotation: 45, opacity: 1, duration: 0.28, ease: "back.out(2)" }, t0);
+      tl.fromTo(s, { scale: 1, opacity: 1 }, { scale: 0, opacity: 0, duration: 0.28, ease: "power2.in", immediateRender: false }, t0 + 0.4);
+    });
+    // vertical whip into the hem: the close-up smears up, the hem lands blurred and sharpens
+    tl.fromTo("#det-hand-move", { yPercent: 0, filter: "blur(0px)" }, { yPercent: -18, filter: "blur(24px)", duration: 0.18, ease: "power3.in", immediateRender: false }, 1.9);
+    tl.fromTo("#det-hem-move", { yPercent: 14, scale: 1.06, filter: "blur(24px)" }, { yPercent: 0, scale: 1.06, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 2.0);
+    // tilt down the outfit to the heels
+    tl.fromTo("#det-hem-move", { y: 0, scale: 1.06 }, { y: -120, scale: 1.12, duration: 1.9, ease: "power1.inOut", immediateRender: false }, 2.3);
+    // price lands and holds still
+    tl.fromTo("#det-price", { scale: 0.5, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "back.out(1.7)" }, 2.25);
+    tl.fromTo("#det-mrp", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "expo.out" }, 2.45);
+    window.__timelines["details"] = tl;
+  </script>
+</template>

@@ -1,0 +1,4 @@
+.hyperframes/
+node_modules/
+# Pinterest screenshots the user shared; not ours to redistribute
+assets/ref/
