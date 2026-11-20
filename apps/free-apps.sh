@@ -216,7 +216,9 @@ status() {
       case "$a" in
         higgsfield) d=open-higgsfield ;; openseo) d=open-seo ;; weknora) d=WeKnora ;; caldiy) d=cal.diy ;; *) d="$a" ;;
       esac
-      if [ -d "$ROOT/$d" ]; then s="installed, stopped"
+      if [ "$a" = caldiy ] && ! docker image inspect calcom.docker.scarf.sh/calcom/cal.diy >/dev/null 2>&1; then
+        [ -d "$ROOT/$d" ] && s="not built yet (run: install caldiy)" || s="not installed"
+      elif [ -d "$ROOT/$d" ]; then s="installed, stopped"
       elif [ "$a" = voicestudio ] || [ "$a" = openwhispr ] || [ "$a" = cap ]; then s="desktop app (open it from your apps)"
       else s="not installed"; fi
     fi
