@@ -1,0 +1,21 @@
+{
+ "negative": "worst quality, inconsistent motion, blurry, jittery, distorted, deformed hands, extra fingers, face visible, static, frozen, lowering the phone, showing face, changing clothes, changing pattern",
+ "clips": {
+  "room1": {
+   "image": "../in-room1-pose1.jpg",
+   "prompt": "A young woman stands in a sunlit room taking a mirror selfie, holding a phone in front of her face so her face stays hidden. She wears a black kurta with dense red floral embroidery and black palazzo pants. She slowly turns her body to one side and back, shifting her weight from hip to hip, her long dark wavy hair sways and the kurta fabric moves softly. Warm natural daylight through sheer curtains, a wooden arched mirror and plants behind her. The camera is static. Realistic, smooth natural motion."
+  },
+  "room2": {
+   "image": "../in-room2-pose2.jpg",
+   "prompt": "A young woman stands in a cozy pink bedroom with glowing fairy lights, taking a mirror selfie. She keeps the phone held in front of her face the entire time, her face is never visible. She wears a black kurta with red floral embroidery on the chest and sleeves and black palazzo pants, one hand on her hip. She only sways gently from side to side and tilts her head slightly, her long dark wavy hair moves softly. The outfit and embroidery stay exactly the same. Soft bokeh fairy lights behind her. The camera is static. Realistic, subtle natural motion."
+  },
+  "hand": {
+   "image": "../in-hand.jpg",
+   "prompt": "Close-up of a woman's hand with a gold watch gently gliding over the red floral thread embroidery on the front of her black kurta, her fingers lightly touching the threads, slight breathing movement of her chest, long dark hair resting on her shoulder, soft sunlight shimmering on the fabric. The camera is static. Realistic fashion detail shot, smooth natural motion."
+  },
+  "hem": {
+   "image": "../in-hem.jpg",
+   "prompt": "Close-up of a woman's lower body: her hand lifts the side hem of her black embroidered kurta and lets it fall, the fabric swings, she takes a small graceful step in black pointed heels, her wide black palazzo pants flow. Wooden floor, soft daylight. The camera is static. Realistic, smooth natural motion."
+  }
+ }
+}

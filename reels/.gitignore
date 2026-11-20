@@ -1,3 +1,5 @@
 # HyperFrames render scratch folders
 **/exports/work-*/
 **/exports/.*.hf-transaction-*/
+# LTX-Video intermediate tensors (re-made by gen.py)
+**/ai-video/ltx/*.pt

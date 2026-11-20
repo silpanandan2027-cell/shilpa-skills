@@ -2,7 +2,7 @@
 <html
   lang="en"
   data-resolution="portrait"
-  data-composition-variables='[{"id":"store","type":"string","label":"Store name","default":"Flipkart"},{"id":"cta","type":"string","label":"Call to action","default":"Follow & comment “link”"},{"id":"disclosure","type":"string","label":"Ad disclosure","default":"#ad · AI model, real product"}]'
+  data-composition-variables='[{"id":"store","type":"string","label":"Store name","default":"Flipkart"},{"id":"price","type":"string","label":"Price","default":"Only ₹799"},{"id":"disclosure","type":"string","label":"Ad disclosure","default":"#ad · AI model, real product"}]'
 >
   <head>
     <meta charset="UTF-8" />
@@ -14,17 +14,26 @@
         src: url("assets/fonts/GreatVibes-Regular.ttf") format("truetype");
         font-display: block;
       }
-      :root {
-        --ground: #f4ece6;
-        --pink: #ff69a4;
-        --hot: #ec187a;
-      }
+      :root { --rose: #d6246e; --hot: #d1105f; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { margin: 0; width: 2160px; height: 3840px; overflow: hidden; background: var(--ground); }
+      html, body { margin: 0; width: 2160px; height: 3840px; overflow: hidden; background: #1a1012; }
       #root { position: relative; width: 100%; height: 100%; }
+      .shot { position: absolute; inset: 0; overflow: hidden; }
+      .shot video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+      #flash { position: absolute; inset: 0; background: #fff8fb; opacity: 0; z-index: 12; pointer-events: none; }
+      #price {
+        position: absolute; left: 0; right: 0; top: 640px; text-align: center; z-index: 20;
+        font-family: "Poppins", sans-serif; font-weight: 800; font-size: 230px; line-height: 1; color: #ffffff;
+        -webkit-text-stroke: 14px var(--hot); paint-order: stroke fill; text-shadow: 0 0 60px rgba(209, 16, 95, 0.55);
+      }
+      #mrp { position: absolute; left: 0; right: 0; top: 940px; text-align: center; z-index: 20; }
+      #mrp-pill { display: inline-block; padding: 26px 64px; border-radius: 999px; background: rgba(255, 255, 255, 0.94);
+        font-family: "Poppins", sans-serif; font-weight: 700; font-size: 76px; color: #2a1218; }
+      #mrp-pill s { color: #7a5c63; font-weight: 600; }
+      #mrp-pill b { color: var(--hot); }
       #cta {
         position: absolute; left: 0; right: 0; top: 2140px; text-align: center; white-space: nowrap; z-index: 20;
-        font-family: "Great Vibes", cursive; font-size: 180px; line-height: 1.2; color: #d6246e;
+        font-family: "Great Vibes", cursive; font-size: 180px; line-height: 1.2; color: var(--rose);
         -webkit-text-stroke: 5px #ffffff; paint-order: stroke fill;
         text-shadow: 0 0 40px rgba(255, 255, 255, 0.95), 0 0 90px rgba(255, 140, 190, 0.55);
       }
@@ -34,7 +43,8 @@
         font-family: "Poppins", sans-serif; font-weight: 600; font-size: 56px; color: #ffffff;
         -webkit-text-stroke: 6px rgba(60, 25, 35, 0.75); paint-order: stroke fill;
       }
-      #leak-host { z-index: 15; }
+      .star { position: absolute; width: 140px; height: 140px; margin: -70px 0 0 -70px; z-index: 18; }
+      .star svg { width: 100%; height: 100%; filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 26px rgba(255, 190, 220, 0.9)); }
       #grain-overlay { z-index: 30; }
       @keyframes hf-grain-noise {
         0%, 100% { transform: translate(0, 0); }
@@ -51,52 +61,79 @@
       #grain-overlay .grain-texture {
         position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
         background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        opacity: 0.07;
+        opacity: 0.06;
         animation: hf-grain-noise 0.5s steps(1) infinite;
       }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="15.4" data-width="2160" data-height="3840">
-      <!-- scenes, back to back -->
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15.9" data-width="2160" data-height="3840">
+      <!-- 1. the folded set turning in 3D, with the store and product title -->
       <div id="intro" data-composition-id="intro" data-composition-src="compositions/intro.html"
         data-start="0" data-duration="2.8" data-track-index="0" data-track-kind="graphics" data-width="2160" data-height="3840"
         data-variable-values='{"store":"Flipkart"}'></div>
-      <div id="look" data-composition-id="look" data-composition-src="compositions/look.html"
-        data-start="2.8" data-duration="5" data-track-index="0" data-track-kind="graphics" data-width="2160" data-height="3840"></div>
-      <div id="details" data-composition-id="details" data-composition-src="compositions/details.html"
-        data-start="7.8" data-duration="4.2" data-track-index="0" data-track-kind="graphics" data-width="2160" data-height="3840"></div>
-      <div id="finale" data-composition-id="finale" data-composition-src="compositions/finale.html"
-        data-start="12" data-duration="3.4" data-track-index="0" data-track-kind="graphics" data-width="2160" data-height="3840"></div>
+
+      <!-- 2-5. AI clips made with free open models (Wan 2.2, LTX-Video), smoothed to 30 fps and upscaled -->
+      <div id="w-room1" class="shot"><video id="v-room1" class="clip" src="assets/video/room1.mp4" data-start="2.8" data-duration="4" data-track-index="0" muted playsinline></video></div>
+      <div id="w-hand" class="shot"><video id="v-hand" class="clip" src="assets/video/hand.mp4" data-start="6.8" data-duration="2.6" data-media-start="0.4" data-track-index="0" muted playsinline></video></div>
+      <div id="w-hem" class="shot"><video id="v-hem" class="clip" src="assets/video/hem.mp4" data-start="9.4" data-duration="2.8" data-media-start="0.3" data-track-index="0" muted playsinline></video></div>
+      <div id="w-room2" class="shot"><video id="v-room2" class="clip" src="assets/video/room2.mp4" data-start="12.2" data-duration="3.7" data-track-index="0" muted playsinline></video></div>
+
+      <div id="flash"></div>
 
       <!-- warm light leak as she first appears -->
       <div id="organic-light-leak-overlay" data-composition-id="organic-light-leak-overlay"
         data-composition-src="compositions/organic-light-leak-overlay.html"
-        data-start="2.6" data-duration="3" data-track-index="1" data-track-kind="graphics" data-width="2160" data-height="3840"></div>
+        data-start="2.7" data-duration="3" data-track-index="1" data-track-kind="graphics" data-width="2160" data-height="3840"></div>
 
-      <!-- call to action and disclosure over the last two thirds -->
-      <div id="cta" class="clip" data-start="8" data-duration="7.4" data-track-index="2" data-layout-allow-overlap>
+      <!-- sparkles on the embroidery close-up -->
+      <div id="star-1" class="star clip" data-start="7" data-duration="2.2" data-track-index="2" style="left: 1080px; top: 1500px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+      <div id="star-2" class="star clip" data-start="7" data-duration="2.2" data-track-index="3" style="left: 1560px; top: 2050px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+      <div id="star-3" class="star clip" data-start="7" data-duration="2.2" data-track-index="4" style="left: 760px; top: 2500px"><svg viewBox="0 0 100 100"><path d="M50 0 L57 43 L100 50 L57 57 L50 100 L43 57 L0 50 L43 43 Z" fill="#fff" /></svg></div>
+
+      <!-- price on the hem shot -->
+      <div id="price" class="clip" data-start="9.6" data-duration="2.5" data-track-index="2" data-var-text="price">Only ₹799</div>
+      <div id="mrp" class="clip" data-start="9.8" data-duration="2.3" data-track-index="3"><span id="mrp-pill"><s>₹1,999</s> &nbsp;·&nbsp; <b>60% OFF</b></span></div>
+
+      <!-- call to action and disclosure -->
+      <div id="cta" class="clip" data-start="7" data-duration="8.9" data-track-index="5" data-layout-allow-overlap>
         <span>F</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span><span>c</span><span>o</span><span>m</span><span>m</span><span>e</span><span>n</span><span>t</span><span>&nbsp;</span><span>“</span><span>l</span><span>i</span><span>n</span><span>k</span><span>”</span>
       </div>
-      <div id="disclosure" class="clip" data-start="2.8" data-duration="12.6" data-track-index="3" data-var-text="disclosure">#ad · AI model, real product</div>
+      <div id="disclosure" class="clip" data-start="2.8" data-duration="13.1" data-track-index="6" data-var-text="disclosure">#ad · AI model, real product</div>
 
       <div id="grain-overlay" style="position: absolute; inset: 0; pointer-events: none" data-layout-ignore><div class="grain-texture"></div></div>
 
       <!-- sound on the visible actions -->
-      <audio id="sfx-sparkle-1" class="clip" src="assets/sfx/sparkle.mp3" data-start="0.45" data-duration="1.6" data-track-index="4" data-volume="0.6"></audio>
-      <audio id="sfx-whoosh-intro" class="clip" src="assets/sfx/whoosh.mp3" data-start="2.4" data-duration="0.57" data-track-index="5" data-volume="0.7"></audio>
-      <audio id="sfx-switch-1" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="4.33" data-duration="0.8" data-track-index="4" data-volume="0.8"></audio>
-      <audio id="sfx-switch-2" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="5.98" data-duration="0.8" data-track-index="4" data-volume="0.8"></audio>
-      <audio id="sfx-sparkle-2" class="clip" src="assets/sfx/sparkle.mp3" data-start="8.1" data-duration="1.6" data-track-index="4" data-volume="0.55"></audio>
-      <audio id="sfx-whip" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="9.62" data-duration="0.8" data-track-index="5" data-volume="0.7"></audio>
-      <audio id="sfx-pop" class="clip" src="assets/sfx/pop.mp3" data-start="10.05" data-duration="0.6" data-track-index="4" data-volume="0.8"></audio>
-      <audio id="sfx-switch-3" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="13.43" data-duration="0.8" data-track-index="4" data-volume="0.8"></audio>
-      <audio id="sfx-chime" class="clip" src="assets/sfx/chime.mp3" data-start="14.0" data-duration="1.4" data-track-index="5" data-volume="0.5"></audio>
+      <audio id="sfx-sparkle-1" class="clip" src="assets/sfx/sparkle.mp3" data-start="0.45" data-duration="1.6" data-track-index="7" data-volume="0.6"></audio>
+      <audio id="sfx-whoosh-intro" class="clip" src="assets/sfx/whoosh.mp3" data-start="2.4" data-duration="0.57" data-track-index="8" data-volume="0.7"></audio>
+      <audio id="sfx-cut-1" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="6.72" data-duration="0.57" data-track-index="8" data-volume="0.8"></audio>
+      <audio id="sfx-sparkle-2" class="clip" src="assets/sfx/sparkle.mp3" data-start="7.1" data-duration="1.6" data-track-index="7" data-volume="0.55"></audio>
+      <audio id="sfx-cut-2" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="9.32" data-duration="0.57" data-track-index="8" data-volume="0.8"></audio>
+      <audio id="sfx-pop" class="clip" src="assets/sfx/pop.mp3" data-start="9.65" data-duration="0.6" data-track-index="7" data-volume="0.8"></audio>
+      <audio id="sfx-cut-3" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="12.12" data-duration="0.57" data-track-index="8" data-volume="0.8"></audio>
+      <audio id="sfx-chime" class="clip" src="assets/sfx/chime.mp3" data-start="14.4" data-duration="1.4" data-track-index="7" data-volume="0.5"></audio>
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });
-      tl.to({}, { duration: 15.4 }, 0);
-      tl.fromTo("#cta span", { opacity: 0, y: 24, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.22, ease: "power3.out", stagger: 0.04 }, 8.1);
+      tl.to({}, { duration: 15.9 }, 0);
+      tl.set("#flash", { opacity: 0 }, 0);
+      // each clip lands slightly large and settles; the cut is covered by a soft white flash
+      const cuts = [["#w-room1", 2.8], ["#w-hand", 6.8], ["#w-hem", 9.4], ["#w-room2", 12.2]];
+      cuts.forEach(([w, at], i) => {
+        tl.fromTo(w, { scale: 1.06 }, { scale: 1.0, duration: 0.7, ease: "expo.out" }, at);
+        if (i > 0) tl.fromTo("#flash", { opacity: 0 }, { opacity: 0.85, duration: 0.08, ease: "power2.in", immediateRender: false }, at - 0.08);
+        tl.fromTo("#flash", { opacity: 0.85 }, { opacity: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, at);
+      });
+      // a slow push on the last clip as the call to action holds
+      tl.fromTo("#w-room2", { scale: 1.0 }, { scale: 1.05, duration: 3.0, ease: "power1.inOut", immediateRender: false }, 12.9);
+      ["#star-1", "#star-2", "#star-3"].forEach((s, i) => {
+        const t0 = 7.05 + i * 0.4;
+        tl.fromTo(s, { scale: 0, rotation: 0, opacity: 0 }, { scale: 1, rotation: 45, opacity: 1, duration: 0.28, ease: "back.out(2)" }, t0);
+        tl.fromTo(s, { scale: 1, opacity: 1 }, { scale: 0, opacity: 0, duration: 0.28, ease: "power2.in", immediateRender: false }, t0 + 0.42);
+      });
+      tl.fromTo("#price", { scale: 0.5, opacity: 0, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "back.out(1.7)" }, 9.6);
+      tl.fromTo("#mrp", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "expo.out" }, 9.8);
+      tl.fromTo("#cta span", { opacity: 0, y: 24, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.22, ease: "power3.out", stagger: 0.04 }, 7.1);
       tl.fromTo("#disclosure", { opacity: 0 }, { opacity: 0.95, duration: 0.4, ease: "power2.out" }, 3.0);
       window.__timelines["main"] = tl;
       tl.seek(0);
