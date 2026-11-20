@@ -1,33 +1,32 @@
 {
- "output": "exports/reel-01-black-red-kurta.mp4",
- "sticker": {
-  "file": "shots/flower_sticker.png",
-  "w": 190,
-  "x": 801,
-  "y": 1700
- },
+ "output": "exports/reel-01-black-red-kurta-4k.mp4",
+ "size": [
+  2160,
+  3840
+ ],
+ "sticker": true,
  "segments": [
   {
-   "image": "shots/intro.png",
-   "seconds": 3.4,
+   "image": "shots4k/intro.jpg",
+   "seconds": 3.0,
    "motion": {
     "zoom": [
      1.0,
-     1.05
+     1.06
     ],
     "fx": [
-     0.45,
-     0.45
+     0.5,
+     0.5
     ],
     "fy": [
-     0.6,
-     0.6
+     0.3,
+     0.3
     ]
    }
   },
   {
-   "image": "shots/pose1_clean.png",
-   "seconds": 3.0,
+   "image": "shots4k/pose1.jpg",
+   "seconds": 3.2,
    "fade": 0.3,
    "handheld": true,
    "motion": {
@@ -46,46 +45,46 @@
    }
   },
   {
-   "image": "shots/pose2_clean.png",
+   "image": "shots4k/pose2.jpg",
    "seconds": 2.3,
    "fade": 0.15,
    "motion": {
     "zoom": [
      1.0,
-     1.04
+     1.05
     ],
     "fx": [
-     0.83,
-     0.83
+     0.5,
+     0.5
     ],
     "fy": [
-     0.95,
-     0.95
+     0.45,
+     0.45
     ]
    }
   },
   {
-   "image": "shots/hand.png",
-   "seconds": 2.1,
+   "image": "shots4k/hand.jpg",
+   "seconds": 2.15,
    "fade": 0.15,
    "motion": {
     "zoom": [
-     1.55,
-     1.66
+     1.0,
+     1.08
     ],
     "fx": [
-     0.55,
-     0.6
+     0.5,
+     0.55
     ],
     "fy": [
-     0.92,
-     1.0
+     0.3,
+     0.5
     ]
    }
   },
   {
-   "image": "shots/hem.png",
-   "seconds": 2.1,
+   "image": "shots4k/hem.jpg",
+   "seconds": 2.15,
    "fade": 0.15,
    "motion": {
     "zoom": [
@@ -97,13 +96,13 @@
      0.5
     ],
     "fy": [
-     0.0,
-     0.2
+     0.1,
+     0.35
     ]
    }
   },
   {
-   "image": "shots/pose1_clean.png",
+   "image": "shots4k/pose1.jpg",
    "seconds": 2.6,
    "fade": 0.3,
    "handheld": true,
@@ -127,17 +126,17 @@
   {
    "text": "Flipkart",
    "style": "brand",
-   "y": 230,
+   "y": 200,
    "start": 0.2,
-   "end": 3.3,
+   "end": 2.9,
    "reveal": "pop"
   },
   {
    "text": "Kurta with Palazzo",
    "style": "script",
-   "y": 370,
+   "y": 340,
    "start": 0.6,
-   "end": 3.3,
+   "end": 2.9,
    "reveal": "type"
   },
   {
@@ -145,16 +144,16 @@
    "style": "script",
    "size": 88,
    "y": 1560,
-   "start": 7.6,
-   "end": 13.0,
+   "start": 7.9,
+   "end": 14.2,
    "reveal": "type"
   },
   {
    "text": "Only ₹799",
    "style": "price",
    "y": 250,
-   "start": 9.65,
-   "end": 11.4,
+   "start": 9.95,
+   "end": 11.75,
    "reveal": "pop"
   },
   {
@@ -162,8 +161,8 @@
    "style": "small",
    "size": 40,
    "y": 360,
-   "start": 9.8,
-   "end": 11.4,
+   "start": 10.1,
+   "end": 11.75,
    "reveal": "fade"
   },
   {
@@ -172,74 +171,74 @@
    "size": 28,
    "y": 1870,
    "start": 0.0,
-   "end": 13.0,
+   "end": 14.3,
    "reveal": "fade",
    "dx": -120
   }
  ],
  "sparkles": [
   {
-   "x": 190,
-   "y": 980,
-   "size": 51,
+   "x": 300,
+   "y": 620,
+   "size": 50,
    "start": 0.3,
-   "end": 3.2,
+   "end": 2.9,
    "period": 0.8
   },
   {
-   "x": 330,
-   "y": 1180,
-   "size": 39,
-   "start": 0.6,
-   "end": 3.2,
+   "x": 760,
+   "y": 520,
+   "size": 42,
+   "start": 0.5,
+   "end": 2.9,
    "period": 1.0
   },
   {
-   "x": 120,
-   "y": 1320,
-   "size": 45,
-   "start": 0.9,
-   "end": 3.2,
+   "x": 530,
+   "y": 1100,
+   "size": 46,
+   "start": 0.8,
+   "end": 2.9,
    "period": 0.7
   },
   {
-   "x": 760,
-   "y": 980,
-   "size": 45,
-   "start": 0.4,
-   "end": 3.2,
+   "x": 250,
+   "y": 1180,
+   "size": 36,
+   "start": 1.0,
+   "end": 2.9,
    "period": 0.9
   },
   {
-   "x": 880,
-   "y": 1150,
-   "size": 36,
-   "start": 1.1,
-   "end": 3.2,
+   "x": 820,
+   "y": 960,
+   "size": 40,
+   "start": 1.2,
+   "end": 2.9,
    "period": 0.75
   },
   {
-   "x": 420,
-   "y": 820,
+   "x": 560,
+   "y": 450,
    "size": 30,
    "start": 1.5,
-   "end": 3.2,
+   "end": 2.9,
    "period": 0.6
   },
   {
    "x": 560,
-   "y": 640,
-   "size": 33,
-   "start": 7.75,
-   "end": 9.6,
+   "y": 700,
+   "size": 34,
+   "start": 8.0,
+   "end": 9.9,
    "period": 0.8
   },
   {
-   "x": 300,
-   "y": 900,
-   "size": 27,
-   "start": 8.0,
-   "end": 9.6,
+   "x": 330,
+   "y": 950,
+   "size": 28,
+   "start": 8.3,
+   "end": 9.9,
    "period": 0.7
   }
  ]

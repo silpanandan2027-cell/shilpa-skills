@@ -8,7 +8,8 @@ reel.json has:
   texts     : overlays on the whole timeline: text, style (brand | script | small | price), y, start, end,
               reveal (type | pop | fade)
   sparkles  : twinkling stars: x, y, size, start, end
-  sticker   : true for the pink flower in the corner
+  sticker   : {file, w, x, y} image sticker, or true for a drawn pink flower
+  size      : [width, height], default [1080, 1920]; use [2160, 3840] for 4K. Positions stay in 1080-wide units.
 
 Frames are drawn with Pillow and piped to FFmpeg; no AI-video credits needed.
 """
@@ -18,6 +19,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 W, H, FPS = 1080, 1920, 30
+K = 1.0  # layout is written in 1080-wide units; K scales it to the output size
 FONTS = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(__file__).parent / "fonts"
 PINK, HOT, WHITE = (255, 105, 160), (236, 24, 122), (255, 255, 255)
 
@@ -48,18 +50,19 @@ def back_out(t):
 @lru_cache(None)
 def text_image(text, style, size=None):
     s = STYLES[style]
-    f = font(s["font"], size or s["size"])
-    pad = 60
-    box = ImageDraw.Draw(Image.new("L", (1, 1))).textbbox((0, 0), text, font=f, stroke_width=s["stroke"])
+    f = font(s["font"], int((size or s["size"]) * K))
+    pad = int(60 * K)
+    sw = max(1, int(s["stroke"] * K))
+    box = ImageDraw.Draw(Image.new("L", (1, 1))).textbbox((0, 0), text, font=f, stroke_width=sw)
     w, h = box[2] - box[0] + pad * 2, box[3] - box[1] + pad * 2
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     org = (pad - box[0], pad - box[1])
     if s.get("glow"):
         g = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        ImageDraw.Draw(g).text(org, text, font=f, fill=s["glow"] + (200,), stroke_width=s["stroke"] + 6,
+        ImageDraw.Draw(g).text(org, text, font=f, fill=s["glow"] + (200,), stroke_width=sw + int(6 * K),
                                stroke_fill=s["glow"] + (200,))
-        img.alpha_composite(g.filter(ImageFilter.GaussianBlur(14)))
-    ImageDraw.Draw(img).text(org, text, font=f, fill=s["fill"], stroke_width=s["stroke"],
+        img.alpha_composite(g.filter(ImageFilter.GaussianBlur(14 * K)))
+    ImageDraw.Draw(img).text(org, text, font=f, fill=s["fill"], stroke_width=sw,
                              stroke_fill=s.get("stroke_fill", WHITE))
     return img
 
@@ -86,8 +89,8 @@ def place_text(frame, t, now):
     if alpha < 1:
         img = img.copy()
         img.putalpha(img.getchannel("A").point(lambda v: int(v * alpha)))
-    x = (W - (full.width if reveal == "type" else img.width)) // 2 + t.get("dx", 0)
-    y = t["y"] - img.height // 2
+    x = (W - (full.width if reveal == "type" else img.width)) // 2 + t.get("dx", 0) * K
+    y = t["y"] * K - img.height // 2
     frame.alpha_composite(img, (int(x), int(y)))
 
 
@@ -109,9 +112,9 @@ def place_sparkle(frame, sp, now):
     if life < 0 or now > sp["end"]:
         return
     k = abs(math.sin(life * math.pi / sp.get("period", 0.9)))
-    size = max(2, int(sp["size"] * (0.25 + 0.75 * k)))
+    size = max(2, int(sp["size"] * K * (0.25 + 0.75 * k)))
     img = star(size)
-    frame.alpha_composite(img, (int(sp["x"] - img.width / 2), int(sp["y"] - img.height / 2)))
+    frame.alpha_composite(img, (int(sp["x"] * K - img.width / 2), int(sp["y"] * K - img.height / 2)))
 
 
 @lru_cache(None)
@@ -129,7 +132,7 @@ def flower():
         img.alpha_composite(petal.rotate(i * 60 + 12, center=(300, 300), resample=Image.BICUBIC))
     d.ellipse([272, 272, 328, 328], fill=(250, 205, 90, 255))
     d.ellipse([286, 286, 314, 314], fill=(235, 160, 60, 255))
-    return img.filter(ImageFilter.GaussianBlur(0.8)).resize((150, 150), Image.LANCZOS)
+    return img.filter(ImageFilter.GaussianBlur(0.8)).resize((int(150 * K), int(150 * K)), Image.LANCZOS)
 
 
 @lru_cache(None)
@@ -145,7 +148,7 @@ def grade(img):
     r = r.point(lambda v: min(255, int(v * 1.03 + 3)))
     b = b.point(lambda v: int(v * 0.97))
     img = Image.merge("RGB", (r, g, b))
-    bloom = img.filter(ImageFilter.GaussianBlur(18))
+    bloom = img.filter(ImageFilter.GaussianBlur(18 * K))
     return Image.blend(img, bloom, 0.12)
 
 
@@ -175,6 +178,9 @@ def shot(seg, img, t):
 def main():
     cfg_path = Path(sys.argv[1])
     cfg = json.loads(cfg_path.read_text())
+    global W, H, K
+    W, H = cfg.get("size", [1080, 1920])
+    K = W / 1080
     root = cfg_path.parent
     segs = cfg["segments"]
     imgs = [grade(Image.open(root / s["image"]).convert("RGB")) for s in segs]
@@ -189,7 +195,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     ff = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
                            "-r", str(FPS), "-i", "-", "-f", "lavfi", "-t", f"{total:.3f}", "-i", "anullsrc=r=44100:cl=stereo",
-                           "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
+                           "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p", "-profile:v", "high", "-tag:v", "avc1",
                            "-c:a", "aac", "-shortest", "-movflags", "+faststart", str(out)], stdin=subprocess.PIPE)
     for n in range(int(total * FPS)):
         now = n / FPS
@@ -204,9 +210,9 @@ def main():
             place_sparkle(frame, sp, now)
         st = cfg.get("sticker")
         if st:
-            fl = sticker_image(root / st["file"], st["w"]) if isinstance(st, dict) and st.get("file") else flower()
-            x, y = (st["x"], st["y"]) if isinstance(st, dict) else (W - fl.width - 70, H - fl.height - 230)
-            frame.alpha_composite(fl, (int(x), int(y + 5 * math.sin(now * 2))))
+            fl = sticker_image(root / st["file"], int(st["w"] * K)) if isinstance(st, dict) and st.get("file") else flower()
+            x, y = (st["x"] * K, st["y"] * K) if isinstance(st, dict) else (W - fl.width - 70 * K, H - fl.height - 230 * K)
+            frame.alpha_composite(fl, (int(x), int(y + 5 * K * math.sin(now * 2))))
         for tx in cfg.get("texts", []):
             place_text(frame, tx, now)
         ff.stdin.write(frame.convert("RGB").tobytes())
