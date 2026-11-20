@@ -6,3 +6,7 @@ __pycache__/
 
 # yt-dlp sign-in files
 cookies*.txt
+
+# Downloaded footage and rendered videos (large, often not ours to share)
+raw-footage/
+exports/
