@@ -1,7 +1,8 @@
+param([switch]$WithApps)
 # Installs the skills, plugins and MCP servers into Claude Code (Windows PowerShell),
 # turned on for every project. Run it again to update.
 
-# 1. Skills: malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
+# 1. Skills: free-apps, malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
 $dst = Join-Path $HOME ".claude\skills"
 New-Item -ItemType Directory -Force $dst | Out-Null
 Get-ChildItem (Join-Path $PSScriptRoot "skills") -Directory | ForEach-Object {
@@ -114,5 +115,24 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
   Add-Content -Path $md -Value $block -Encoding UTF8
   Write-Host "Turned on video-editor for every project in $md"
 }
+
+if (-not (Select-String -Path $md -Pattern "shilpa-skills:free-apps" -Quiet)) {
+  $appsScript = Join-Path $PSScriptRoot "apps\free-apps.ps1"
+  $block = @"
+
+<!-- shilpa-skills:free-apps -->
+For voiceovers and voice clones, AI images and video, SEO, questions across documents, dictation, tasks and boards,
+booking links, a customer inbox, or screen recordings, follow the ``free-apps`` skill: use the free apps
+(VoiceStudio, Open Higgsfield, OpenSEO, WeKnora, OpenWhispr, OpenProject, Cal.diy, Chatwoot, Cap), not the paid ones.
+They are managed with $appsScript (install, start, stop, status).
+<!-- /shilpa-skills:free-apps -->
+"@
+  Add-Content -Path $md -Value $block -Encoding UTF8
+  Write-Host "Turned on free-apps for every project in $md"
+}
+
+# 6. The nine free apps themselves (big downloads, so only with -WithApps)
+if ($WithApps) { & (Join-Path $PSScriptRoot "apps\free-apps.ps1") install }
+else { Write-Host "To install the nine free apps too: install.ps1 -WithApps  (or apps\free-apps.ps1 install)" }
 
 Write-Host "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."

@@ -24,6 +24,26 @@ The installer puts these on your computer (and Claude cloud sessions install the
 
 Remotion is free for individuals and small teams; a company of 4 or more people needs a Remotion licence.
 
+## Nine free apps, nine bills
+
+The `free-apps` skill makes Claude use these instead of the paid tools, in every chat. One script installs and runs them:
+`apps/free-apps.sh install` (Windows: `apps\free-apps.ps1 install`), then `start`, `stop` or `status`.
+Or install them with everything else: `./install.sh --with-apps` / `install.ps1 -WithApps`.
+
+| Free app | Replaces | Runs as | Address |
+|---|---|---|---|
+| [Open Higgsfield](https://github.com/wide-trace/open-higgsfield) | Higgsfield | Node.js app, bring your own API key | localhost:3100 |
+| [VoiceStudio](https://github.com/debpalash/VoiceStudio) | ElevenLabs | desktop app, plus an MCP server for Claude | localhost:3900 |
+| [OpenSEO](https://github.com/every-app/open-seo) | Semrush | Docker, needs a DataForSEO key | localhost:3001 |
+| [WeKnora](https://github.com/Tencent/WeKnora) | Notion AI | Docker, local models through Ollama | localhost:3200 |
+| [OpenWhispr](https://github.com/OpenWhispr/openwhispr) | Wispr Flow | desktop app, works offline | |
+| [OpenProject](https://github.com/opf/openproject) | Asana | Docker | localhost:8090 |
+| [Cal.diy](https://github.com/calcom/cal.diy) | Calendly | Docker, personal non-production use (for a business, Cal.com's hosted plan is free for one person) | localhost:3000 |
+| [Chatwoot](https://github.com/chatwoot/chatwoot) | Intercom | Docker | localhost:3400 |
+| [Cap](https://github.com/CapSoftware/Cap) | Loom | desktop app; business use needs the $29-a-year licence | |
+
+The Docker apps need [Docker Desktop](https://www.docker.com/products/docker-desktop/) running. WeKnora is several GB; Cal.diy has no ready-made image, so the installer builds it (slow, about 8 GB of RAM).
+
 ## Web design stack
 
 The installer switches all of these on for every project:

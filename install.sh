@@ -4,7 +4,7 @@
 set -e
 here="$(cd "$(dirname "$0")" && pwd)"
 
-# 1. Skills: malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
+# 1. Skills: free-apps, malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
 dst="$HOME/.claude/skills"
 mkdir -p "$dst"
 for d in "$here"/skills/*/; do
@@ -109,5 +109,22 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
 EOF
   echo "Turned on video-editor for every project in $md"
 fi
+
+if ! grep -q "shilpa-skills:free-apps" "$md"; then
+  cat >> "$md" <<EOF
+
+<!-- shilpa-skills:free-apps -->
+For voiceovers and voice clones, AI images and video, SEO, questions across documents, dictation, tasks and boards,
+booking links, a customer inbox, or screen recordings, follow the \`free-apps\` skill: use the free apps
+(VoiceStudio, Open Higgsfield, OpenSEO, WeKnora, OpenWhispr, OpenProject, Cal.diy, Chatwoot, Cap), not the paid ones.
+They are managed with $here/apps/free-apps.sh (install, start, stop, status).
+<!-- /shilpa-skills:free-apps -->
+EOF
+  echo "Turned on free-apps for every project in $md"
+fi
+
+# 6. The nine free apps themselves (big downloads, so only with --with-apps)
+if [ "$1" = "--with-apps" ]; then "$here/apps/free-apps.sh" install || true
+else echo "To install the nine free apps too: ./install.sh --with-apps  (or apps/free-apps.sh install)"; fi
 
 echo "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."
