@@ -1,8 +1,21 @@
 # Reel 01 – Seedance prompt pack (black & red embroidered kurta set)
 
-Use any free Seedance image-to-video site (Dreamina / CapCut, Higgsfield, or the one from the reel).
-Settings: image-to-video · 9:16 vertical · 5 seconds · 1080p if offered · camera: fixed/static.
-Upload the photo, paste its prompt, generate. Send me the 4 clips and I will edit the final reel.
+## Where (the free tool from the reel)
+BytePlus ModelArk Experience Center: https://www.byteplus.com/en/experience/modelark
+1. Sign up / sign in (free BytePlus account).
+2. Playground → Media → **Video generation**.
+3. Model dropdown → **ByteDance-Seedance-1.5-pro** (if it says limit reached, pick Seedance-1.0-pro).
+4. Mode: **starting frame + ending frame** (first & last frame). Ratio **9:16**, **5 s**, highest resolution offered.
+5. Upload the START photo as starting frame and the END photo as ending frame (shots 1 and 2),
+   or only a starting frame (shots 3 and 4). Paste the prompt. Generate, then download the MP4.
+6. Upload the 4 MP4s here. I will cut the final reel (intro, price, call to action, effects, 4K).
+
+| Shot | Starting frame | Ending frame |
+|---|---|---|
+| 1 | 1-mirror-room.jpg | 1-mirror-room-END.jpg |
+| 2 | 2-fairy-light-room.jpg | 2-fairy-light-room-END.jpg |
+| 3 | 3-embroidery-closeup.jpg | (none) |
+| 4 | 4-hem-closeup.jpg | (none) |
 
 ## 1-mirror-room.jpg
 A young woman takes a mirror selfie in a sunlit room, holding her phone in front of her face the whole time so her face stays hidden. She slowly turns to one side to show her black kurta with red floral embroidery, then turns back, shifting her weight hip to hip. Her long wavy hair and the fabric move naturally. Static camera, warm daylight through sheer curtains, realistic. The outfit and embroidery stay exactly the same.
