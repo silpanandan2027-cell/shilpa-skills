@@ -11,3 +11,7 @@ switch them on for every project on your computer.
 For any video work (edit, cut, caption, transcribe, download, render, motion graphics), follow the `video-editor` skill
 (`skills/video-editor/SKILL.md`): FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion. The HyperFrames plugin is
 switched on in `.claude/settings.json`; cloud sessions install the tools from the environment's setup script.
+
+For the daily Instagram reel (topic, script, ElevenLabs voice, HyperFrames reel, Metricool Trial Reel draft, "post", AutoDM, log),
+follow the `daily-reel` skill (`skills/daily-reel/SKILL.md`). Settings live in `content/reel-config.json`, style in `content/style.md`.
+Never publish a reel until the user says "post".

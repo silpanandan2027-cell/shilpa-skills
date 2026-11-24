@@ -6,3 +6,8 @@ __pycache__/
 
 # yt-dlp sign-in files
 cookies*.txt
+
+# daily-reel render leftovers
+content/reels/*/reel/node_modules/
+content/reels/*/reel/.hyperframes/
+content/reels/*/reel/renders/

@@ -1,0 +1,23 @@
+{
+  "_note": "Settings for the daily-reel skill. No passwords or API keys here: those are saved as network secrets on the cloud environment.",
+  "handle": "@YOUR_HANDLE",
+  "language": "English",
+  "timezone": "Asia/Kolkata",
+  "post_time": "19:00",
+  "content_plan": "content/content-plan.md",
+  "style": "content/style.md",
+  "elevenlabs": {
+    "voice_id": "YOUR_CLONED_VOICE_ID",
+    "model": "eleven_multilingual_v2"
+  },
+  "metricool": {
+    "userId": "YOUR_METRICOOL_USER_ID",
+    "blogId": "YOUR_METRICOOL_BLOG_ID",
+    "trial_type": "TRIAL_REEL"
+  },
+  "guide": {
+    "dm_keyword": "AI",
+    "follow_check": true,
+    "link": "YOUR_GUIDE_LINK_OR_SUPERPROFILE_PAGE"
+  }
+}
