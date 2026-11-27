@@ -1,14 +1,41 @@
 # Shilpa's Claude Skills
 
-Skills for [Claude Code](https://claude.com/claude-code): three that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
+Skills for [Claude Code](https://claude.com/claude-code): an Instagram growth studio, three skills that edit your videos for you, and a web design stack so the websites Claude builds stop looking AI-made.
 
 | Skill | What it does |
 |---|---|
+| `/reel-studio` | Your Instagram growth studio: finds reels that are winning in your niche, writes hooks and scripts, makes the reel (free voiceover in Malayalam or English, word-by-word captions, 12 styles, or text over your own footage), scores it before you post, posts or schedules it to Instagram, pulls your stats, and turns winners into carousels. See [reel-studio](#reel-studio). |
 | `/malayalam-type` | Animated Malayalam text that never breaks the letters: titles, one-word pops, lower thirds, quotes, counters, checklists, call-to-action buttons and word-timed subtitles. Makes a video or a transparent overlay. |
 | `/reel-fx` | Effects for your own video: zoom in and out, punch-in, brightness and lighting, rotation, blur, mirror, camera shake, 7 colour looks, vignette, flash, cinema bars, progress bar, plus any `/malayalam-type` text laid on top. Keeps your audio. |
 | `/video-editor` | Claude as your video editor: download (yt-dlp), cut and join (FFmpeg), subtitles (Whisper), and animated videos in HTML (HyperFrames) or React (Remotion). |
 | `/web-design` | Used automatically for any website or UI work. Runs the 9 tools below every time. |
 | `/watch` | Claude watches a video for you: give it a YouTube link or a video file and ask what happens in it. From [bradautomates/claude-video](https://github.com/bradautomates/claude-video), installed as a plugin (in Claude Code it shows as `/watch:watch`). |
+
+## reel-studio
+
+The full loop, run by Claude: **find winners → hook → script → make the reel → score it → post or schedule → read the numbers → repurpose**.
+
+```
+/reel-studio set me up: I sell a billing app for small shops in Kerala
+/reel-studio find what's going viral in my niche and give me 10 reel ideas
+/reel-studio make a reel about "why shops lose money on credit", Malayalam voice, paper style
+/reel-studio score this reel before I post it
+/reel-studio schedule it for tomorrow 7:30 pm
+/reel-studio how did my last 30 posts do? what should I make more of?
+/reel-studio turn my best reel into a carousel
+```
+
+| Step | How |
+|---|---|
+| Find winners | ranks videos by how far they beat their own account's usual views (YouTube Shorts and TikTok links, or Instagram numbers you paste) |
+| Hooks and scripts | 20 hook formulas, a scoring pass, scripts written as timed beats |
+| Make the reel | 12 styles (bold, clean, editorial, news, neon, brutalist, retro, ledger, terminal, paper, comic, minimal); 11 beat types (hook, point, counting stat, list, bar chart, DM chat, before/after, quote, terminal, product screenshot, call to action); free neural voice (Malayalam: Sobhana, Midhun) with captions synced to it, or your own talking-head clip with text on top; music under the voice; loudness set for Instagram; cover image |
+| Score before posting | measures shape, sharpness, length, loudness, silent opening, first frame and pace, then Claude scores hook, clarity, retention, value, payoff, ask and shareability out of 100 |
+| Post and schedule | Instagram's official API, to your own Professional account. One-time setup: [instagram-setup.md](skills/reel-studio/references/instagram-setup.md) |
+| Stats | views, reach, saves, shares, follows and watch time per post into `results.csv`, then what to make more of |
+| Repurpose | carousel slides at 1080x1350 from any script |
+
+Your brand, reels, plan and stats live in a `reel-studio` folder in your home folder. Auto-posting is optional: without it you get the video, cover and caption to post from the app.
 
 ## Video tools
 

@@ -1,7 +1,7 @@
 # Installs the skills, plugins and MCP servers into Claude Code (Windows PowerShell),
 # turned on for every project. Run it again to update.
 
-# 1. Skills: malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
+# 1. Skills: malayalam-type, reel-fx, reel-studio, video-editor, web-design (with 84 DESIGN.md files)
 $dst = Join-Path $HOME ".claude\skills"
 New-Item -ItemType Directory -Force $dst | Out-Null
 Get-ChildItem (Join-Path $PSScriptRoot "skills") -Directory | ForEach-Object {
@@ -18,6 +18,12 @@ if (Get-Command winget -ErrorAction SilentlyContinue) {
   }
   $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
 } else { Write-Host "winget is missing, so FFmpeg, yt-dlp and Node.js were skipped" }
+
+# reel-studio: its own Python with Playwright (renders reels) and edge-tts (free voiceover)
+if ((Get-Command python -ErrorAction SilentlyContinue) -and (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
+  python (Join-Path $dst "reel-studio\scripts\setup.py") *> $null
+  if ($LASTEXITCODE -eq 0) { Write-Host "Set up reel-studio" } else { Write-Host "reel-studio will finish setting itself up the first time you use it" }
+}
 
 $wdir = Join-Path $HOME ".local\whisper.cpp"
 if (-not (Get-Command whisper-cli -ErrorAction SilentlyContinue) -and -not (Test-Path (Join-Path $wdir "whisper-cli.exe"))) {
@@ -113,6 +119,18 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
 "@
   Add-Content -Path $md -Value $block -Encoding UTF8
   Write-Host "Turned on video-editor for every project in $md"
+}
+
+if (-not (Select-String -Path $md -Pattern "shilpa-skills:reel-studio" -Quiet)) {
+  $block = @"
+
+<!-- shilpa-skills:reel-studio -->
+For any Instagram growth work (finding viral ideas, hooks, reel scripts, making reels, scoring a reel before posting,
+posting or scheduling, Instagram stats, turning reels into carousels), follow the ``reel-studio`` skill.
+<!-- /shilpa-skills:reel-studio -->
+"@
+  Add-Content -Path $md -Value $block -Encoding UTF8
+  Write-Host "Turned on reel-studio for every project in $md"
 }
 
 Write-Host "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."

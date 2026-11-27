@@ -11,3 +11,6 @@ switch them on for every project on your computer.
 For any video work (edit, cut, caption, transcribe, download, render, motion graphics), follow the `video-editor` skill
 (`skills/video-editor/SKILL.md`): FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion. The HyperFrames plugin is
 switched on in `.claude/settings.json`; cloud sessions install the tools from the environment's setup script.
+
+For any Instagram growth work (viral ideas, hooks, reel scripts, making reels, scoring before posting, posting or scheduling,
+stats, carousels), follow the `reel-studio` skill (`skills/reel-studio/SKILL.md`).

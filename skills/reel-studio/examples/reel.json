@@ -1,0 +1,9 @@
+{"style": "bold", "voice": "en-US-AndrewNeural", "rate": "+5%", "brand": {"handle": "@yourbrand"},
+ "beats": [
+  {"type": "hook", "kicker": "SaaS growth", "text": "Your product is *invisible*", "say": "Your product is invisible."},
+  {"type": "point", "n": 1, "title": "Post one *reel* a day", "body": "Short, useful, about one problem", "say": "Post one reel a day about one problem your buyer has."},
+  {"type": "stat", "value": 2900000, "label": "views in 30 days", "say": "That is how one founder got almost three million views in a month."},
+  {"type": "bars", "title": "What *grows* you", "items": [{"label": "Reels", "value": 72}, {"label": "Carousels", "value": 41}, {"label": "Photos", "value": 12}], "suffix": "%", "say": "Reels beat carousels, and carousels beat photos."},
+  {"type": "chat", "title": "DMs after a reel", "messages": [{"from": "them", "text": "Saw your reel. Is there a free trial?"}, {"from": "me", "text": "Yes! Link is in my bio"}], "say": "And the messages start coming in."},
+  {"type": "cta", "text": "Comment GROW", "sub": "I'll send you my 30-day plan", "say": "Comment grow and I will send you my thirty day plan."}
+ ]}

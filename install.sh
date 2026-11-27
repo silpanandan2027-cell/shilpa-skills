@@ -4,7 +4,7 @@
 set -e
 here="$(cd "$(dirname "$0")" && pwd)"
 
-# 1. Skills: malayalam-type, reel-fx, video-editor, web-design (with 84 DESIGN.md files)
+# 1. Skills: malayalam-type, reel-fx, reel-studio, video-editor, web-design (with 84 DESIGN.md files)
 dst="$HOME/.claude/skills"
 mkdir -p "$dst"
 for d in "$here"/skills/*/; do
@@ -48,6 +48,11 @@ for t in ffmpeg yt-dlp whisper-cli hyperframes remotion; do
   if command -v "$t" >/dev/null 2>&1 || [ -x "$HOME/.local/bin/$t" ]; then echo "Video tool ready: $t"
   else echo "Video tool missing: $t"; fi
 done
+# reel-studio: its own Python with Playwright (renders reels) and edge-tts (free voiceover)
+if command -v python3 >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then
+  python3 "$dst/reel-studio/scripts/setup.py" >/dev/null 2>&1 && echo "Set up reel-studio" \
+    || echo "reel-studio will finish setting itself up the first time you use it"
+fi
 # Agent skills for Remotion (HyperFrames comes as a plugin below)
 command -v npx >/dev/null 2>&1 && npx -y skills add remotion-dev/skills -g -y -a claude-code -s '*' --copy >/dev/null 2>&1 \
   && echo "Installed Remotion skills" || true
@@ -108,6 +113,17 @@ FFmpeg, yt-dlp, Whisper (whisper.cpp), HyperFrames and Remotion are installed on
 <!-- /shilpa-skills:video-editor -->
 EOF
   echo "Turned on video-editor for every project in $md"
+fi
+
+if ! grep -q "shilpa-skills:reel-studio" "$md"; then
+  cat >> "$md" <<'EOF'
+
+<!-- shilpa-skills:reel-studio -->
+For any Instagram growth work (finding viral ideas, hooks, reel scripts, making reels, scoring a reel before posting,
+posting or scheduling, Instagram stats, turning reels into carousels), follow the `reel-studio` skill.
+<!-- /shilpa-skills:reel-studio -->
+EOF
+  echo "Turned on reel-studio for every project in $md"
 fi
 
 echo "Done. Restart Claude Code, then run /mcp to sign in to Refero and Firecrawl."
